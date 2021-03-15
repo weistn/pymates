@@ -9,7 +9,7 @@ First of all, create a virtual environment to run the development version.
 python3 -m venv .venv
 ```
 
-You can also use `py -3 -m venv .venv` on Windows.
+You can also use `py -m venv .venv` on Windows.
 
 Second, activate the virtual environent.
 On Windows, run:
