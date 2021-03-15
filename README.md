@@ -3,7 +3,7 @@ Pythonic Markdown Text System
 
 ## Development Instructions
 
-First of all, create a virtual environment.
+First of all, create a virtual environment to run the development version.
 
 ```
 python3 -m venv .venv
