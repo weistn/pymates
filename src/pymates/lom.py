@@ -430,7 +430,7 @@ class TextCursor:
             if i != 0:
                 TextString(self.block, " ", self.font, self.textColor)
             TextString(self.block, words[i], self.font, self.textColor)
-        if str.endswith(" "):
+        if len(words) != 0 and str.endswith(" "):
             TextString(self.block, " ", self.font, self.textColor)
 
     def startFormat(self, font = None, textColor = None):
