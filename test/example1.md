@@ -11,6 +11,8 @@ Futhermore, we can write \tt{typewriter}.
 \h1\color(0, 0, 255) All blue
 \h1\red All red
 
-The text \red from here on is red
+The text \red from here on is red, because of `\red`.
 
+\h2\margin(20, 20, 20, 20) With extra margin
+\h2\margin(left=mm(20), right=mm(20)) Left right margin
 \h2\center More in the center

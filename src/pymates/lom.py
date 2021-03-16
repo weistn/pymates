@@ -1,4 +1,5 @@
 from enum import Enum
+from pymates.units import Margin, Padding
 from PySide6.QtGui import QColor, QFont, QFontMetricsF, QPageSize, QTransform
 from PySide6.QtCore import Qt, QPointF, QRect
 
@@ -51,22 +52,6 @@ def font(family, size, weight =  FontWeight.Normal, italic = False, underline = 
     fonts[name] = f
     return f
 
-def deriveFont(baseFont, style):
-    if style == None:
-        return baseFont
-    baseStyle = {
-        "fontFamily": baseFont.family,
-        "fontSize": baseFont.size,
-        "fontWeight": baseFont.weight,
-        "italic": baseFont.italic,
-        "underline": baseFont.underline,
-        "strikeOut": baseFont.strikeOut
-    }
-    for key in baseStyle:
-        if (key in style) and style[key] != None:
-            baseStyle[key] = style[key] 
-    return font(baseStyle["fontFamily"], baseStyle["fontSize"], baseStyle["fontWeight"], baseStyle["italic"], baseStyle["underline"], baseStyle["strikeOut"])    
-
 def color(r, g ,b):
     name = f"{r},{g},{b}"
     if name in colors:
@@ -105,20 +90,6 @@ class Font:
 class Color:
     def __init__(self, r, g, b):
         self.qcolor = QColor(r, g, b)
-
-class Margin:
-    def __init__(self, left, top, right, bottom):
-        self.left = left
-        self.top = top
-        self.right = right
-        self.bottom = bottom
-
-class Padding:
-    def __init__(self, left, top, right, bottom):
-        self.left = left
-        self.top = top
-        self.right = right
-        self.bottom = bottom
 
 class Document:
     def __init__(self, pageSize, pageLayout, font, textColor = None):
@@ -201,10 +172,12 @@ class TextFlow:
                 self.blocks[self._blockIndex].startLayout()
 
 class TextBlock:
-    def __init__(self, flow, align = Alignment.Left, font = None, textColor = None):
+    def __init__(self, flow, align = Alignment.Left, font = None, textColor = None, margin = None, padding = None):
         self.flow = flow
         self.flow.blocks.append(self)
         self.align = align
+        self.margin = Margin(0, 0, 0, 0) if margin == None else margin
+        self.padding = Padding(0, 0, 0, 0) if padding == None else padding
         if font == None:
             self.font = flow.doc.font
         else:
@@ -403,21 +376,25 @@ class TextCursor:
         self.textColor = None
         self.formatStack = []
 
-    def startBlock(self, align = Alignment.Left, font = None, textColor = None):
-        self.block = TextBlock(self.flow, align, font, textColor)
+    def startBlock(self, align = Alignment.Left, font = None, textColor = None, padding=None, margin=None):
+        self.block = TextBlock(self.flow, align, font, textColor, padding, margin)
         self.font = None
         self.textColor = None
         if len(self.formatStack) != 0:
             self.formatStack = []
         return self.block
 
-    def blockFormat(self, align = None, font = None, textColor = None):
+    def blockFormat(self, align = None, font = None, textColor = None, padding=None, margin=None):
         if align != None:
             self.block.align = align
         if textColor != None:
             self.block.textColor = textColor
         if font != None:
             self.block.font = font
+        if padding != None:
+            self.block.padding = padding
+        if margin != None:
+            self.block.margin = margin
 
     def text(self, str):
         if self.block == None:

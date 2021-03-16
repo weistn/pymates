@@ -1,4 +1,5 @@
-from pymates.lom import DefaultPageLayout, PageSize, Document, font, deriveFont, Alignment, color
+from pymates.lom import DefaultPageLayout, PageSize, Document, font, Alignment, color
+from pymates.units import Padding, Margin
 from pymates import dom, markdown
 from PySide6.QtGui import QPageSize
 
@@ -44,36 +45,22 @@ def genParag(node, doc, cursor):
         textColor = color(s[0], s[1], s[2])
     cursor.startBlock(font=textFont, textColor=textColor, align=align)
     if node.children != None:
-        # i = 0
-        # for i in range(0, len(node.children)):
-        #     if not isinstance(node.children[i], dom.StyleNode):
-        #         break
-        #     genBlockStyle(node.children[i])
         for n in node.children:
             genNode(n, doc, cursor)
 
-# def genBlockStyle(node, doc, cursor):
-#    print("genBlockStyle")
-#    textFont = deriveFont(cursor.currentFont(), node.style)
-#    textColor = None
-#    align = node.style["align"] if "align" in node.style else None
-#    if "color" in node.style:
-#        s = node.style["color"]
-#        textColor = color(s[0], s[1], s[2])
-#    cursor.blockFormat(font=textFont, textColor=textColor, align=align)
-#    print("endStyle")
-
 def genStyle(node, doc, cursor):
     print("genStyle")
-    align = node.style["align"] if "align" in node.style else None
     textFont = deriveFont(cursor.currentFont(), node.style)
     textColor = None
     if "color" in node.style:
         s = node.style["color"]
         textColor = color(s[0], s[1], s[2])
     cursor.startFormat(font=textFont, textColor=textColor)
-    if align != None:
-        cursor.blockFormat(align=align)
+    align = node.style["align"] if "align" in node.style else None
+    padding = derivePadding(cursor.block.padding, node.style["padding"]) if "padding" in node.style else None
+    margin = deriveMargin(cursor.block.margin, node.style["margin"]) if "margin" in node.style else None
+    if align != None or padding != None or margin != None:
+        cursor.blockFormat(align=align, margin=margin, padding=padding)
     if len(node.children) != 0:
         genNodes(node.children, doc, cursor)
         cursor.endFormat()
@@ -85,6 +72,38 @@ def genSpan(node, doc, cursor):
 def genText(node, doc, cursor):
     print(f"genText {node}")
     cursor.text(node)
+
+def deriveFont(baseFont, style):
+    if style == None:
+        return baseFont
+    baseStyle = {
+        "fontFamily": baseFont.family,
+        "fontSize": baseFont.size,
+        "fontWeight": baseFont.weight,
+        "italic": baseFont.italic,
+        "underline": baseFont.underline,
+        "strikeOut": baseFont.strikeOut
+    }
+    for key in baseStyle:
+        if (key in style) and style[key] != None:
+            baseStyle[key] = style[key] 
+    return font(baseStyle["fontFamily"], baseStyle["fontSize"], baseStyle["fontWeight"], baseStyle["italic"], baseStyle["underline"], baseStyle["strikeOut"])    
+
+def deriveMargin(baseMargin, margin):
+    return Margin(
+        margin["left"] if margin["left"] != None else baseMargin.left,
+        margin["top"] if margin["top"] != None else baseMargin.top,
+        margin["right"] if margin["right"] != None else baseMargin.right,
+        margin["bottom"] if margin["bottom"] != None else baseMargin.bottom,        
+    )
+
+def derivePadding(basePadding, padding):
+    return Padding(
+        padding["left"] if padding["left"] != None else basePadding.left,
+        padding["top"] if padding["top"] != None else basePadding.top,
+        padding["right"] if padding["right"] != None else basePadding.right,
+        padding["bottom"] if padding["bottom"] != None else basePadding.bottom,        
+    )
 
 register(markdown.document, genDocument)
 

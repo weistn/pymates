@@ -111,6 +111,7 @@ class Parser:
         r, tok, txt = self.scanner.peek()
         while tok == Token.FunctionArg:    
             self.scanner.scan()
+            txt = txt.rstrip().lstrip()
             kw = isKeywordArgument(txt)
             if kw == False:
                 node.args.append(txt)

@@ -1,5 +1,6 @@
 import sys
 import pymates.markdown
+import pymates.units
 from pymates.mainwindow import MainWindow
 from pymates.parser import Parser
 from pymates.scanner import Scanner
@@ -22,8 +23,8 @@ if __name__ == '__main__':
     parser = Parser(scanner)
     # Add builtins
     parser.addBuiltins(pymates.markdown)
+    parser.addBuiltins(pymates.units)
     parser.addBuiltin("FontWeight", FontWeight)
-    parser.addBuiltin("Alignment", Alignment)
     parser.parse()
 
     ev = Evaluator()

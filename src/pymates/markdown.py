@@ -73,11 +73,14 @@ def center(child = None):
 def justify(child = None):
     return align(Alignment.Justify, child)
 
+def margin(left=None, top=None, right=None, bottom=None, child=None):
+    return style(child, margin={"left": left, "top": top, "right": right, "bottom": bottom})
+
 def inlineMath(child):
     return style(child, math=True)
 
 def inlineCode(child):
-    return style(child, code=True)
+    return style(child, color=(0xd0, 0x10, 0x40), fontFamily="Courier")
 
 def fract(counter, denominator):
     return MathNode(fract, [counter, denominator])
