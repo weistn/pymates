@@ -220,6 +220,9 @@ class TextBlock:
         self.objectIndex = 0
         self.saveObjectIndex = 0
 
+    def isEmpty(self):
+        return len(self.objects) == 0
+
     def startLayout(self):
         self.objectIndex = 0
 
@@ -420,7 +423,8 @@ class TextCursor:
         if self.block == None:
             raise Exception("No block")
         if str.startswith(" "):
-            TextString(self.block, " ", self.font, self.textColor)
+            if not self.block.isEmpty():
+                TextString(self.block, " ", self.font, self.textColor)
         words = str.split()
         for i in range(0, len(words)):
             if i != 0:

@@ -206,7 +206,7 @@ class Scanner:
                 return False
         return False
 
-    def error(line, linepos, offset, text):
+    def error(self, line, linepos, offset, text):
         self.errors.append(ScannerError(ScannerRange(offset, line, linepos, offset), text))
 
     def peek(self):
@@ -338,16 +338,24 @@ class Scanner:
                 # Skip the backslash
                 self.next()
                 start = self.offset
+                # Skip the identifier
                 while (self.ch >= 'a' and self.ch <= 'z') or (self.ch >= 'A' and self.ch <= 'Z') or (self.ch >= '0' and self.ch <= '9'):
                     self.next()
+                # There is an identifier?
                 if start < self.offset:
                     # A function call
+                    name = self.src[start:self.offset]
                     mode = self.mode
                     if self.ch == '(':
                         self.mode = ScannerMode.FunctionArgs
-                    else:
+                    elif self.ch == '\n' or self.ch == '\t' or self.ch == '\r' or self.ch == ' ':
+                        self.skipWhitespace(False)
                         self.mode = ScannerMode.Normal
-                    name = self.src[start:self.offset]
+                    elif self.ch == '{' or self.ch == '\\' or self.ch == '_' or selr.ch == '*':
+                        self.mode = ScannerMode.Normal
+                    else:
+                        self.error(self.lineCount, self.lineOffset, self.offset, f"Unexpected character '{self.ch}'")
+                        self.mode = ScannerMode.Normal
                     if mode == ScannerMode.NewTag:
                         return Token.FunctionSection, name
                     return Token.Function, name
