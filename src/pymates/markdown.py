@@ -1,29 +1,29 @@
-from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode, mergeStyle
+from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode
 from pymates.lom import FontWeight, Alignment
 
 def document():
     return DocumentNode(document)
 
-def p(**style):
-    return ParagNode(p, style=mergeStyle({"fontSize": 12}, style))
+def p(*children):
+    return ParagNode(p, style={"fontSize": 12}, children=children)
 
-def h1(**style):
-    return ParagNode(h1, style=mergeStyle({"fontSize": 32}, style))
+def h1(*children):
+    return ParagNode(h1, style={"fontSize": 32}, children=children)
 
-def h2(**style):
-    return ParagNode(h2, style=mergeStyle({"fontSize": 24}, style))
+def h2(*children):
+    return ParagNode(h2, style={"fontSize": 24}, children=children)
 
-def h3(**style):
-    return ParagNode(h3, style=mergeStyle({"fontSize": 20}, style))
+def h3(*children):
+    return ParagNode(h3, style={"fontSize": 20}, children=children)
 
-def h4(**style):
-    return ParagNode(h4, style=mergeStyle({"fontSize": 16}, style))
+def h4(*children):
+    return ParagNode(h4, style={"fontSize": 16}, children=children)
 
-def code(**style):
-    return ParagNode(code, style=mergeStyle({"fontFamily": "Courier"}, style))
+def code(*children):
+    return ParagNode(code, style={"fontFamily": "Courier"}, children=children)
 
-def math(**style):
-    return ParagNode(code, style=mergeStyle({}, style))
+def math(*children):
+    return ParagNode(code, style={}, children=children)
 
 # def deck():
 #     return ParagNode(deck)
@@ -52,11 +52,11 @@ def strike(child = None):
 def tt(child = None):
     return style(child, fontFamily="Courier")
 
-def color(col, child = None):
-    return style(child, color=col)
+def color(red, green, blue, child = None):
+    return style(child, color=(red, green, blue))
 
 def red(child = None):
-    return color((255, 0, 0), child)
+    return color(255, 0, 0, child)
 
 def align(a, child = None):
     return style(child, align=a)

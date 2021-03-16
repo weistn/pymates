@@ -11,9 +11,14 @@ def checkBool(key, val):
         raise BaseException(f"Argument {key} is not a boolean")
 
 class Node:
-    def __init__(self, func):
+    def __init__(self, func, children=None):
         self.func = func
-        self.children = []
+        if children == None:
+            self.children = []
+        elif isinstance(children, tuple):
+            self.children = list(children)
+        else:
+            self.children = children
         self.indent = 0
         
     def append(self, *children):
@@ -31,8 +36,8 @@ class DocumentNode(Node):
         return True
 
 class ParagNode(Node):
-    def __init__(self, func, style = None, config = None, parentContainer = None, isContainer = False):
-        super(ParagNode, self).__init__(func)
+    def __init__(self, func, style = None, children=None, config = None, parentContainer = None, isContainer = False):
+        super(ParagNode, self).__init__(func, children)
         self.style = style
         self.config = config
         self.parentContainer = parentContainer
