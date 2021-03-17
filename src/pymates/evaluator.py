@@ -1,12 +1,17 @@
-from pymates.dom import Node, FunctionNode, SpanNode
+from pymates.dom import Node, FunctionNode, SpanNode, StyleNode, DocumentNode
   
 class Evaluator:
     def __init__(self):
-        pass
+        self.doc = None
 
     def evaluate(self, node, nspace):
         if isinstance(node, str):
             return
+        elif isinstance(node, StyleNode):
+            if hasattr(node.style, "pagesize"):
+                self.doc.pagesize = getattr(node.style, "pagesize")
+        elif isinstance(node, DocumentNode):
+            self.doc = node
         self.evaluateNodes(node.children, nspace)
 
     def evaluateNodes(self, nodes, nspace):

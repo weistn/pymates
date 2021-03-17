@@ -1,3 +1,5 @@
+\pagesize(A4)
+
 # Hello World
 
 Here comes the \bold{fett and \italic{kursiv}} \italic{text}.
@@ -14,5 +16,5 @@ Futhermore, we can write \tt{typewriter}.
 The text \red from here on is red, because of `\red`.
 
 \h2\margin(20, 20, 20, 20) With extra margin
-\h2\margin(left=mm(20), right=mm(20)) Left right margin
+\h2\margin(left=20*mm, right=20*mm) Left right margin
 \h2\center More in the center

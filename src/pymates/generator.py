@@ -1,5 +1,5 @@
 from pymates.lom import DefaultPageLayout, PageSize, Document, font, Alignment, color
-from pymates.units import Padding, Margin
+from pymates.sizes import Padding, Margin
 from pymates import dom, markdown
 from PySide6.QtGui import QPageSize
 

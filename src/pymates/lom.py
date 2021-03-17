@@ -1,5 +1,5 @@
 from enum import Enum
-from pymates.units import Margin, Padding
+from pymates.sizes import Margin, Padding
 from PySide6.QtGui import QColor, QFont, QFontMetricsF, QPageSize, QTransform
 from PySide6.QtCore import Qt, QPointF, QRect
 

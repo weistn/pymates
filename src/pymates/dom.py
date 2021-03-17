@@ -1,3 +1,5 @@
+import pymates.sizes
+
 def mergeStyle(s1, s2):
     s = {}
     for k in s1:
@@ -31,6 +33,7 @@ class Node:
 class DocumentNode(Node):
     def __init__(self, func):
         super(DocumentNode, self).__init__(func)
+        self.pagesize = pymates.sizes.A4
 
     def isContainer(self):
         return True

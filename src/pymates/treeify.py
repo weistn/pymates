@@ -12,8 +12,8 @@ def treeifyChildren(parent):
         node = parent.children[i]
         if isinstance(node, (str, StyleNode)):
             # TODO: Check that no ParagNodes became children of a StyleNode
-            if isinstance(section, DocumentNode):
-                raise BaseException("Oooops")
+            # if isinstance(section, DocumentNode):
+            #    raise BaseException("Oooops")
             if section == parent:
                 i += 1
             else:

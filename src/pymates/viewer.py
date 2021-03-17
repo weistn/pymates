@@ -1,6 +1,6 @@
 import sys
 import pymates.markdown
-import pymates.units
+import pymates.sizes
 from pymates.mainwindow import MainWindow
 from pymates.parser import Parser
 from pymates.scanner import Scanner
@@ -9,6 +9,9 @@ from pymates.treeify import treeify
 from pymates.generator import generate
 from pymates.lom import FontWeight, Alignment
 from PySide6.QtWidgets import QApplication
+
+# from pymates.lom import font
+# from PySide6.QtGui import QFontDatabase
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -23,7 +26,7 @@ if __name__ == '__main__':
     parser = Parser(scanner)
     # Add builtins
     parser.addBuiltins(pymates.markdown)
-    parser.addBuiltins(pymates.units)
+    parser.addBuiltins(pymates.sizes)
     parser.addBuiltin("FontWeight", FontWeight)
     parser.parse()
 
@@ -35,6 +38,11 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Preview")
     app.setApplicationName("Preview")
+
+    # i = QFontDatabase.addApplicationFont("/Users/weis/Projects/pymates/Lobster-Regular.ttf")
+    # print(i)
+    # print(QFontDatabase.applicationFontFamilies(i))
+    # print(f"------------------------> {font('Lobster', 12).advance('Hello World')}")
 
     d = generate(parser.doc)
 

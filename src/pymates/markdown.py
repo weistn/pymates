@@ -4,6 +4,9 @@ from pymates.lom import FontWeight, Alignment
 def document():
     return DocumentNode(document)
 
+def pagesize(size):
+    return style(pagesize=size)
+
 def p(*children):
     return ParagNode(p, style={"fontSize": 12}, children=children)
 

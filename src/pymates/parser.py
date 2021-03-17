@@ -22,6 +22,10 @@ class Parser:
         self.nspace[name] = func
 
     def addBuiltins(self, mod):
+        if hasattr(mod, "_pymates_all_"):
+            for key in getattr(mod, "_pymates_all_"):
+                self.addBuiltin(key, getattr(mod, key))
+            return
         for name, val in inspect.getmembers(mod, lambda o: inspect.isfunction(o)):
             # print(f"Importing {name}")
             self.addBuiltin(name, val)
