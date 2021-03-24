@@ -1,7 +1,7 @@
 import inspect
 from pymates.markdown import document, inlineCode, inlineMath, bold, italic, math, code, h1, h2, h3, h4, p, span
 from pymates.scanner import Token, Scanner
-from pymates.dom import FunctionNode, SpanNode
+from pymates.dom import FunctionNode, SpanNode, FunctionNodeMode
 
 def isKeywordArgument(code):
     for i in range(0, len(code)):
@@ -109,7 +109,7 @@ class Parser:
 
     def parseFunction(self, func, possibleSection):
         print(f"Parse function {func.__name__}")
-        node = FunctionNode(func, possibleSection, [], {})
+        node = FunctionNode(func, FunctionNodeMode.SectionOrInline if possibleSection else FunctionNodeMode.Inline, [], {})
         node.indent = self.scanner.indent
         print(node)
         r, tok, txt = self.scanner.peek()

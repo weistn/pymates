@@ -1,50 +1,24 @@
-from enum import Enum
-from pymates.sizes import Margin, Padding
-from PySide6.QtGui import QColor, QFont, QFontMetricsF, QPageSize, QTransform
-from PySide6.QtCore import Qt, QPointF, QRect
+from pymates.sizes import Margin, Padding, Alignment, FontWeight
 
-def ptToPx(pt, dpi):
-    return pt/72*dpi
+backend = None
 
-def pxToPt(px, dpi):
-    return px*72/dpi
+def setFontBackend(b):
+    global backend
+    backend = b
 
-def mmToPt(mm):
-    return mm * 2.8346456693
+#def ptToPx(pt, dpi):
+#    return pt/72*dpi
 
-class Alignment(Enum):
-    Left = 0
-    Right = 1
-    Justify = 2
-    Center = 3
+#def pxToPt(px, dpi):
+#    return px*72/dpi
 
-class FontWeight(Enum):
-    Thin = QFont.Thin
-    ExtraLight = QFont.ExtraLight
-    Light = QFont.Light
-    Normal = QFont.Normal
-    Medium = QFont.Medium
-    DemiBold = QFont.DemiBold
-    Bold = QFont.Bold
-    ExtraBold = QFont.ExtraBold
-    Black = QFont.Black
+#def mmToPt(mm):
+#    return mm * 2.8346456693
 
 fonts = {}
 colors = {}
-qpaintDevice = None
-xdpi = 72
-ydpi = 72
 
-def setPaintDevice(paintDevice):
-    global qpaintDevice
-    qpaintDevice = paintDevice
-    global xdpi
-    xdpi = paintDevice.logicalDpiX()
-    global ydpi
-    ydpi = paintDevice.logicalDpiY()
-    fonts.clear()
-
-def font(family, size, weight =  FontWeight.Normal, italic = False, underline = False, strikeOut = False):
+def font(family, size, weight = FontWeight.Normal, italic = False, underline = False, strikeOut = False):
     name = f"{family}|{size}|{weight}|{italic}|{underline}|{strikeOut}"
     if name in fonts:
         return fonts[name]
@@ -68,35 +42,22 @@ class Font:
         self.italic = italic
         self.underline = underline
         self.strikeOut = strikeOut
-
-        self.qfont = QFont(family, size)
-        if weight !=  FontWeight.Normal:
-            self.qfont.setWeight(weight.value)
-        if italic:
-            self.qfont.setItalic(True)
-        if underline:
-            self.qfont.setUnderline(True)
-        if strikeOut:
-            self.qfont.setStrikeOut(True)
-        self.qmetrics = QFontMetricsF(self.qfont, qpaintDevice)
-        self.spaceAdvance = self.qmetrics.horizontalAdvanceChar(" ")
-        self.ascent = self.qmetrics.ascent()
-        self.descent = self.qmetrics.descent()
-        self.leading = self.qmetrics.leading()
+        self.fontmetrics = backend.nativeFontMetrics(self)
 
     def advance(self, str):
-        return self.qmetrics.horizontalAdvance(str, -1)
+        return self.fontmetrics.horizontalAdvance(str, -1)
 
 class Color:
     def __init__(self, r, g, b):
-        self.qcolor = QColor(r, g, b)
+        self.r = r
+        self.g = g
+        self.b = b
 
 class Document:
-    def __init__(self, pageSize, pageLayout, font, textColor = None):
+    def __init__(self, pageLayout, font, textColor = None):
         self.namedFlows = {}
         self.flows = []
         self.pageLayout = pageLayout
-        self.pageSize = pageSize
         self.font = font
         if textColor == None:
             self.textColor = color(0, 0, 0)
@@ -245,7 +206,7 @@ class TextBlock:
         self.objectIndex = min(self.objectIndex, line.objectIndex)
 
     def leading(self):
-        return self.font.leading
+        return self.font.fontmetrics.leading
 
 class TextLine:
     def __init__(self, objectIndex):
@@ -296,6 +257,7 @@ class TextLine:
             obj.y += y
 
     def draw(self, painter, x, y):
+        painter.startText(x, y + self.ascent)
         for obj in self.objects:
             obj.draw(painter, x, y + self.ascent)
             
@@ -355,15 +317,15 @@ class TextString(TextObject):
         else:
             self.textColor = textColor
         # Compute the dimensions
-        self.ascent = self.font.ascent
-        self.descent = self.font.descent
-        self.advance = self.font.advance(self.str)
+        self.ascent = self.font.fontmetrics.ascent
+        self.descent = self.font.fontmetrics.descent
+        self.advance = self.font.fontmetrics.advance(self.str)
 
     def draw(self, painter, x, baseline):
         # print(f"Draw str {self.str} at {x}+{self.x}, {baseline}")
-        painter.setPen(self.textColor.qcolor)
-        painter.setFont(self.font.qfont)
-        painter.drawText(QPointF(x + self.x, baseline + self.y), self.str)
+        painter.setPen(self.textColor)
+        painter.setFont(self.font)
+        painter.drawText(x + self.x, baseline + self.y, self.str)
 
     def isSpace(self):
         return self.str == " "
@@ -436,41 +398,33 @@ class TextCursor:
             return self.block.font
         return self.flow.doc.font
 
-class PageSize:
-    def __init__(self, widthPoints, heightPoints):
-        self.widthPoints = widthPoints
-        self.heightPoints = heightPoints
-        self.marginPoints = Margin(mmToPt(10), mmToPt(10), mmToPt(10), mmToPt(10))
-
-    def fromId(id):
-        qpagesize = QPageSize(id)
-        qsize = qpagesize.sizePoints()
-        return PageSize(qsize.width(), qsize.height())
-
 class AbstractPageLayout:
-    def __init__(self):
-        pass
-    
+    def __init__(self, pageSize):
+        self.pageSize = pageSize
+        self.width = self.pageSize[0]
+        self.height = self.pageSize[1]
+
     def nextPageLayout(self):
         return self
 
 class DefaultPageLayout(AbstractPageLayout):
-    def __init__(self):
-        super(DefaultPageLayout, self).__init__()
+    def __init__(self, pageSize, margin):
+        super(DefaultPageLayout, self).__init__(pageSize)
+        self.margin = margin
 
     def fillPage(self, doc, floatBoxes):
-        page = Page(doc)
-        ps = page.doc.pageSize
-        w = ps.widthPoints
-        w -= ps.marginPoints.left + ps.marginPoints.right
-        h = ps.heightPoints
-        h -= ps.marginPoints.top + ps.marginPoints.bottom
-        self.box = PageBox(page, ps.marginPoints.left, ps.marginPoints.top, w, h)
+        page = Page(self, doc)
+        w = self.width
+        w -= self.margin.left + self.margin.right
+        h = self.height
+        h -= self.margin.top + self.margin.bottom
+        self.box = PageBox(page, self.margin.left, self.margin.top, w, h)
         floatBoxes = self.box.fill(doc.currentFlow(), floatBoxes)
         return (page, floatBoxes)
 
 class Page:
-    def __init__(self, doc):
+    def __init__(self, pageLayout, doc):
+        self.pageLayout = pageLayout
         self.doc = doc
         self.boxes = []
 
@@ -503,13 +457,12 @@ class PageBox:
         if flow == None:
             return
         leading = 0
-        yPixels = 0
-        yPixelsMax = ptToPx(self.maxHeightPoints, ydpi)
+        self.heightPoints = 0
 
         # Fit as many of the pending TextBoxes as possible 
         while len(textBoxes) > 0:
             textBox = textBoxes[0]
-            yPoints = pxToPt(yPixels, ydpi)
+            yPoints = self.heightPoints
             xPoints = textBox.marginPoints.left
             boxWidthPoints = self.widthPoints - textBox.marginPoints.left - textBox.marginPoints.right
             p = PageBox(self, xPoints, yPoints, boxWidthPoints, self.maxHeightPoints - yPoints)
@@ -522,7 +475,7 @@ class PageBox:
                 self.removeChildBox(p)
                 break
             textBoxes = textBoxes[1:]
-            yPixels += leading + ptToPx(p.heightPoints + textBox.marginPoints.bottom, ydpi)
+            self.heightPoints += leading + p.heightPoints + textBox.marginPoints.bottom
 
         # Fit lines of text and TextBoxes
         done = False
@@ -530,23 +483,23 @@ class PageBox:
             b = flow.currentBlock()
             if b == None:
                 break
+            leading = b.leading()
             while not b.consumed():
-                line = b.nextLine(ptToPx(self.widthPoints, xdpi))
+                line = b.nextLine(self.widthPoints)
                 h = line.height() + leading
-                if yPixels + h > yPixelsMax:
-                    self.heightPoints = pxToPt(yPixels, ydpi)
+                if self.heightPoints + h > self.maxHeightPoints:
                     b.undoLine(line)
                     done = True
                     break
                 print("L")
                 line.x = 0
-                line.y = yPixels
-                yPixels += h
+                line.y = self.heightPoints
+                self.heightPoints += h
                 self.lines.append(line)
-                leading = b.leading()
+                # leading = b.leading()
                 # Layout all text boxes associated with the line
                 for textBox in line.textBoxes():
-                    yPoints = pxToPt(yPixels + leading, ydpi)
+                    yPoints = self.heightPoints + leading
                     xPoints = textBox.marginPoints.left
                     boxWidthPoints = self.widthPoints - textBox.marginPoints.left - textBox.marginPoints.right
                     p = PageBox(self, xPoints, yPoints, boxWidthPoints, self.maxHeightPoints - yPoints)
@@ -559,13 +512,12 @@ class PageBox:
                         textBoxes.append(textBox)
                         self.removeChildBox(p)
                     else:
-                        yPixels += leading + ptToPx(p.heightPoints + textBox.marginPoints.bottom, ydpi)
-        self.heightPoints = pxToPt(yPixels, ydpi)
+                        self.heightPoints += leading + p.heightPoints + textBox.marginPoints.bottom
         return textBoxes
 
     def draw(self, painter):
-        x = ptToPx(self.xAbsPoints(), xdpi)
-        y = ptToPx(self.yAbsPoints(), ydpi)
+        x = self.xAbsPoints()
+        y = self.yAbsPoints()
         for line in self.lines:
             line.draw(painter, x + line.x, y + line.y)
         for childBox in self.childBoxes:
@@ -585,45 +537,20 @@ class Layouter:
     def __init__(self, doc):
         self.doc = doc
         self.pages = []
-        self.widgetMarginPx = 10
-        self.widgetHeightPx = self.widgetMarginPx
-        self.widgetWidthPx = ptToPx(self.doc.pageSize.widthPoints, xdpi) + 2 + 2*self.widgetMarginPx
 
     def layout(self):
         self.doc.startLayout()
         floatBoxes = []
         while True:
             print("F")
-            f = self.doc.currentFlow()
-            if f == None:
+            flow = self.doc.currentFlow()
+            if flow == None:
                 return
-            l = f.pageLayout()
+            pageLayout = flow.pageLayout()
             while True:
                 print("P")
-                p, floatBoxes = l.fillPage(self.doc, floatBoxes)
-                self.pages.append(p)
-                h = ptToPx(self.doc.pageSize.heightPoints, ydpi)
-                self.widgetHeightPx += h + 2 + self.widgetMarginPx
-                if f.consumed():
+                page, floatBoxes = pageLayout.fillPage(self.doc, floatBoxes)
+                self.pages.append(page)
+                if flow.consumed():
                     break
-                l = l.nextPageLayout()
-
-    def draw(self, painter, paged):
-        # Used for drawing on a widget
-        yOffsetPx = 0
-        # Draw all pages
-        for page in self.pages:
-            if not paged:
-                # Draw a border around the page
-                yOffsetPx += self.widgetMarginPx
-                painter.setWorldTransform(QTransform())
-                w = ptToPx(self.doc.pageSize.widthPoints, xdpi)
-                h = ptToPx(self.doc.pageSize.heightPoints, ydpi)
-                painter.fillRect(QRect(self.widgetMarginPx, yOffsetPx, w + 2, h + 2), color(255, 255, 255).qcolor)
-                painter.setPen(QColor(0xb2, 0xb2, 0xb2))
-                painter.drawRect(self.widgetMarginPx, yOffsetPx, w + 2, h + 2)
-                painter.translate(self.widgetMarginPx + 1, yOffsetPx + 1)
-                yOffsetPx += h + 2
-            page.draw(painter)
-            if paged:
-                painter.device().newPage()
+                pageLayout = pageLayout.nextPageLayout()

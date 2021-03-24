@@ -1,4 +1,6 @@
 import pymates.sizes
+from functools import wraps
+from enum import Enum
 
 def mergeStyle(s1, s2):
     s = {}
@@ -22,6 +24,7 @@ class Node:
         else:
             self.children = children
         self.indent = 0
+        self.className = None
         
     def append(self, *children):
         for c in children:
@@ -33,7 +36,8 @@ class Node:
 class DocumentNode(Node):
     def __init__(self, func):
         super(DocumentNode, self).__init__(func)
-        self.pagesize = pymates.sizes.A4
+        self.pageSize = pymates.sizes.A4
+        self.pageMargin = pymates.sizes.Margin(20, 20, 20, 20)
 
     def isContainer(self):
         return True
@@ -78,9 +82,43 @@ class MathNode(Node):
         super(MathNode, self).__init__(func)
         self.children = children
 
+class FunctionNodeMode(Enum):
+    SectionOrInline = 1
+    Inline = 2
+    Section = 3
+
 class FunctionNode(Node):
-    def __init__(self, func, possibleSection, args, kwargs):
+    def __init__(self, func, mode, args, kwargs):
         super(FunctionNode, self).__init__(func)
-        self.possibleSection = possibleSection
+        self.mode = mode
         self.args = args
         self.kwargs = kwargs
+        self.evaluateArgs = True
+
+def section(className):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if args == None:
+                args = []
+            else:
+                args = list(args)
+            fn = FunctionNode(func, FunctionNodeMode.Section, args, kwargs)
+            fn.className = className
+            return fn
+        return wrapper
+    return decorator
+
+def inline(className):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if args == None:
+                args = []
+            else:
+                args = list(args)
+            fn = FunctionNode(func, FunctionNodeMode.Inline, args, kwargs)
+            fn.className = className
+            return fn
+        return wrapper
+    return decorator

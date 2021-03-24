@@ -1,7 +1,6 @@
-from pymates.lom import DefaultPageLayout, PageSize, Document, font, Alignment, color
+from pymates.lom import DefaultPageLayout, Document, font, Alignment, color
 from pymates.sizes import Padding, Margin
 from pymates import dom, markdown
-from PySide6.QtGui import QPageSize
 
 generators = {}
 
@@ -9,10 +8,9 @@ def register(func, gen):
     generators[func] = gen
 
 def generate(docNode):
-    pl = DefaultPageLayout()
-    ps = PageSize.fromId(QPageSize.A4)
+    pl = DefaultPageLayout(docNode.pageSize, docNode.pageMargin)
     f = font("Helvetica", 12)
-    doc = Document(ps, pl, f)
+    doc = Document(pl, f)
     flow = doc.newOrderedFlow()
     cursor = flow.cursor
 
@@ -29,14 +27,14 @@ def genNode(node, doc, cursor):
     if isinstance(node, str):
         genText(node, doc, cursor)
     else:
-        print(node.func)
+        # print(node.func)
         generators[node.func](node, doc, cursor)
 
 def genDocument(node, doc, cursor):
     genNodes(node.children, doc, cursor)
 
 def genParag(node, doc, cursor):
-    print("genParag")
+    # ("genParag")
     align = node.style["align"] if "align" in node.style else Alignment.Left
     textFont = deriveFont(doc.font, node.style)
     textColor = None
@@ -49,7 +47,7 @@ def genParag(node, doc, cursor):
             genNode(n, doc, cursor)
 
 def genStyle(node, doc, cursor):
-    print("genStyle")
+    # print("genStyle")
     textFont = deriveFont(cursor.currentFont(), node.style)
     textColor = None
     if "color" in node.style:
@@ -64,13 +62,13 @@ def genStyle(node, doc, cursor):
     if len(node.children) != 0:
         genNodes(node.children, doc, cursor)
         cursor.endFormat()
-    print("endStyle")
+    # print("endStyle")
 
 def genSpan(node, doc, cursor):
     genNodes(node.children, doc, cursor)
 
 def genText(node, doc, cursor):
-    print(f"genText {node}")
+    # print(f"genText {node}")
     cursor.text(node)
 
 def deriveFont(baseFont, style):

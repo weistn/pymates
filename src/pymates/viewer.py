@@ -10,8 +10,8 @@ from pymates.generator import generate
 from pymates.lom import FontWeight, Alignment
 from PySide6.QtWidgets import QApplication
 
-# from pymates.lom import font
-# from PySide6.QtGui import QFontDatabase
+from pymates.lom import font
+from PySide6.QtGui import QFontDatabase
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -31,22 +31,26 @@ if __name__ == '__main__':
     parser.parse()
 
     ev = Evaluator()
-    ev.evaluate(parser.doc, parser.nspace)
-
-    treeify(parser.doc)
+    for step in (None, "counters", "references"):
+        ev.evaluate(parser.doc, parser.nspace, step)
+        treeify(parser.doc)
     
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Preview")
     app.setApplicationName("Preview")
 
-    # i = QFontDatabase.addApplicationFont("/Users/weis/Projects/pymates/Lobster-Regular.ttf")
-    # print(i)
-    # print(QFontDatabase.applicationFontFamilies(i))
+    i = QFontDatabase.addApplicationFont("/Users/weis/Projects/pymates/Lobster-Regular.ttf")
+    print(i)
+    print(QFontDatabase.applicationFontFamilies(i))
+    i = QFontDatabase.addApplicationFont("/Users/weis/Projects/pymates/Roboto-Regular.ttf")
+    print(i)
+    print(QFontDatabase.applicationFontFamilies(i))
     # print(f"------------------------> {font('Lobster', 12).advance('Hello World')}")
+
+    mw = MainWindow()
 
     d = generate(parser.doc)
 
-    mw = MainWindow()
     mw.setDocument(d)
     mw.show()
     sys.exit(app.exec_())

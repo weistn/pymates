@@ -1,4 +1,4 @@
-from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode
+from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode, inline
 from pymates.lom import FontWeight, Alignment
 
 def document():
@@ -85,8 +85,12 @@ def inlineMath(child):
 def inlineCode(child):
     return style(child, color=(0xd0, 0x10, 0x40), fontFamily="Courier")
 
-def fract(counter, denominator):
-    return MathNode(fract, [counter, denominator])
+@inline("references")
+def ref(node, name):
+    return "Chapter: " + name
+
+# def fract(counter, denominator):
+#    return MathNode(fract, [counter, denominator])
 
 def span(*children):
     return SpanNode(span, list(children))

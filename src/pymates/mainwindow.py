@@ -1,19 +1,51 @@
 import sys
-from PySide6.QtGui import QPalette, QPainter
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QPalette, QPainter, QTransform, QColor
+from PySide6.QtCore import Qt, QRect
 from PySide6.QtWidgets import QMainWindow, QScrollArea, QApplication, QWidget
-from pymates.lom import setPaintDevice
+from pymates.qtbackend import hPtToPx, wPtToPx, qtInit
+from pymates import lom
+import pymates.qtbackend
 
 class PageArea(QWidget):
     def __init__(self):
         super(PageArea, self).__init__()
-        self.pageArea = None
+        self.layouter = None
+        self.widgetHeightPx = 0
+        self.widgetWidthPx = 0
+        self.widgetMarginPx = 10
+
+    def setLayouter(self, layouter):
+        self.layouter = layouter
+        self.widgetHeightPx = self.widgetMarginPx
+        self.widgetWidthPx = wPtToPx(self.layouter.pages[0].pageLayout.width) + 2 + 2*self.widgetMarginPx
+        for page in self.layouter.pages:
+            h = hPtToPx(page.pageLayout.height)
+            self.widgetHeightPx += h + 2 + self.widgetMarginPx
 
     def paintEvent(self, event):
         qp = QPainter()
         qp.begin(self)
-        self.layouter.draw(qp, False)
+        self.draw(qp)
         qp.end()
+
+    def draw(self, qpainter):
+        # Used for drawing on a widget
+        yOffsetPx = 0
+        # Draw all pages
+        for page in self.layouter.pages:
+            # Draw a border around the page
+            yOffsetPx += self.widgetMarginPx
+            qpainter.setWorldTransform(QTransform())
+            w = wPtToPx(page.pageLayout.width)
+            h = hPtToPx(page.pageLayout.height)
+            qpainter.fillRect(QRect(self.widgetMarginPx, yOffsetPx, w + 2, h + 2), QColor(255, 255, 255))
+            qpainter.setPen(QColor(0xb2, 0xb2, 0xb2))
+            qpainter.drawRect(self.widgetMarginPx, yOffsetPx, w + 2, h + 2)
+            qpainter.translate(self.widgetMarginPx + 1, yOffsetPx + 1)
+            yOffsetPx += h + 2
+            painter = pymates.qtbackend.qtPainter(qpainter)
+            page.draw(painter)
+            painter.finish()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -28,18 +60,19 @@ class MainWindow(QMainWindow):
         self.pageArea = PageArea()
         self.scroll.setWidget(self.pageArea)
         self.setCentralWidget(self.scroll)
-        setPaintDevice(self.pageArea)
+        qtInit(self.pageArea)
+        lom.setFontBackend(pymates.qtbackend)
 
     def setDocument(self, doc):
         layouter = Layouter(doc)
         layouter.layout()
-        self.pageArea.layouter = layouter
-        self.pageArea.setGeometry(0, 0, layouter.widgetHeightPx, layouter.widgetWidthPx)
-        self.pageArea.setFixedHeight(layouter.widgetHeightPx)
-        self.pageArea.setFixedWidth(layouter.widgetWidthPx)
+        self.pageArea.setLayouter(layouter)
+        self.pageArea.setGeometry(0, 0, self.pageArea.widgetHeightPx, self.pageArea.widgetWidthPx)
+        self.pageArea.setFixedHeight(self.pageArea.widgetHeightPx)
+        self.pageArea.setFixedWidth(self.pageArea.widgetWidthPx)
 
-from PySide6.QtGui import QPageSize
-from pymates.lom import DefaultPageLayout, PageSize, Document, Margin, Layouter, Alignment, font, color
+from pymates.lom import DefaultPageLayout, Document, Layouter, font, color
+from pymates.sizes import Margin, Alignment, A4
 
 if __name__ == '__main__':
     print(f"Arguments count: {len(sys.argv)}")
@@ -51,11 +84,10 @@ if __name__ == '__main__':
     app.setApplicationName("Preview")
     mw = MainWindow()
 
-    pl = DefaultPageLayout()
-    ps = PageSize.fromId(QPageSize.A4)
+    pl = DefaultPageLayout(A4, Margin(20, 20, 20, 20))
     # ps = PageSize(mmToPt(100), mmToPt(50))
     f = font("Helvetica", 12)
-    doc = Document(ps, pl, f)
+    doc = Document(pl, f)
     flow = doc.newOrderedFlow()
     cursor = flow.cursor
 
