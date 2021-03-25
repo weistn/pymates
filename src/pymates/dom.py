@@ -23,12 +23,36 @@ class Node:
             self.children = list(children)
         else:
             self.children = children
+        for c in self.children:
+            c.parent = self
         self.indent = 0
         self.className = None
+        self.parent = None
         
     def append(self, *children):
         for c in children:
             self.children.append(c)
+            if not isinstance(c, str):
+                c.parent = self
+
+    def insertChild(self, pos, child):
+        self.children.insert(pos, child)#
+        if not isinstance(child, str):
+            child.parent = self
+
+    def document(self):
+        if isinstance(self, DocumentNode):
+            return self
+        if self.parent != None:
+            return self.parent.document()
+        return None
+
+    def section(self):
+        if isinstance(self, ParagNode):
+            return self
+        if self.parent != None:
+            return self.parent.section()
+        return None
 
     def isContainer(self):
         return False
@@ -36,8 +60,32 @@ class Node:
 class DocumentNode(Node):
     def __init__(self, func):
         super(DocumentNode, self).__init__(func)
-        self.pageSize = pymates.sizes.A4
-        self.pageMargin = pymates.sizes.Margin(20, 20, 20, 20)
+        self.style = {"pageSize": pymates.sizes.A4, "margin": pymates.sizes.Margin(20, 20, 20, 20)}
+        self.labels = {}
+        self.counters = {}
+
+    def setLabel(self, name, node):
+        if name in self.labels:
+            raise BaseException(f"Label {name} already used")
+        self.labels[name] = node
+
+    def label(self, name):
+        if name in self.labels:
+            return self.labels[name]
+        raise BaseException(f"Unknown label {name}")
+
+    def counter(self, name):
+        if name in self.counters:
+            return self.counters[name]
+        raise BaseException(f"Unknown counter {name}")
+
+    def incCounter(self, name):
+        if name in self.counters:
+            c = self.counters[name] + 1
+            self.counters[name] = c
+            return c
+        self.counters[name] = 1
+        return 1
 
     def isContainer(self):
         return True
@@ -50,11 +98,18 @@ class ParagNode(Node):
         self.parentContainer = parentContainer
         self._isContainer = isContainer
         self.parent = None
+        self._refName = None
         if style != None:
             for k in style:
                 if k == "bold": checkBool(k, style[k])
                 elif k == "italic": checkBool(k, style[k])
 #                else: raise BaseException(f"Argument {k} is not a supported style option")
+
+    def referenceName(self):
+        return self._refName
+
+    def setReferenceName(self, name):
+        self._refName = name
 
     def isContainer(self):
         return self._isContainer
@@ -93,7 +148,7 @@ class FunctionNode(Node):
         self.mode = mode
         self.args = args
         self.kwargs = kwargs
-        self.evaluateArgs = True
+        self.evaluateArgs = False
 
 def section(className):
     def decorator(func):

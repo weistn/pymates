@@ -18,3 +18,11 @@ The text \red from here on is red, because of `\red`.
 \h2\margin(20, 20, 20, 20) With extra margin
 \h2\margin(left=20*mm, right=20*mm) Left right margin
 \h2\center More in the center
+
+As we have shown in \ref("intro"), ours is the best.
+
+\chapter\style(fontFamily="Lobster")\label("intro") In Lobster with g
+\chapter \style(fontFamily="Lobster") In Lobster with more g
+\subchapter This is a sub-chapter
+\chapter\style(fontFamily="Roboto") In Roboto with g
+\chapter\style(fontFamily="Roboto") In Roboto with more g

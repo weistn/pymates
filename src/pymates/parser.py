@@ -110,6 +110,7 @@ class Parser:
     def parseFunction(self, func, possibleSection):
         print(f"Parse function {func.__name__}")
         node = FunctionNode(func, FunctionNodeMode.SectionOrInline if possibleSection else FunctionNodeMode.Inline, [], {})
+        node.evaluateArgs = True
         node.indent = self.scanner.indent
         print(node)
         r, tok, txt = self.scanner.peek()

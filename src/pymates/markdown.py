@@ -7,6 +7,32 @@ def document():
 def pagesize(size):
     return style(pagesize=size)
 
+@inline("counters")
+def counter(node, counterFmt, refFmt, *names):
+    section = node.section()
+    if section == None:
+        raise BaseException("Parent of counter must be a section") 
+    doc = node.document()
+    c = []
+    for i in range(0, len(names) - 1):
+        c.append(doc.counter(names[i]))
+    c.append(doc.incCounter(names[len(names) - 1]))
+    s = counterFmt.format(*c)
+    section.setReferenceName(refFmt.format(*c))
+    return s
+
+@inline("counters")
+def label(node, name):
+    section = node.section()
+    if section == None:
+        raise BaseException("Parent of label must be a section") 
+    node.document().setLabel(name, section)
+
+@inline("references")
+def ref(node, name):
+    section = node.document().label(name)
+    return section.referenceName()
+
 def p(*children):
     return ParagNode(p, style={"fontSize": 12}, children=children)
 
@@ -21,6 +47,12 @@ def h3(*children):
 
 def h4(*children):
     return ParagNode(h4, style={"fontSize": 16}, children=children)
+
+def chapter(*children):
+    return h1(counter("Chapter {}: ", "Chapter {}", "Level1"), *children)
+
+def subchapter(*children):
+    return h2(counter("Section {}.{}: ", "Section {}.{}", "Level1", "Level2"), *children)
 
 def code(*children):
     return ParagNode(code, style={"fontFamily": "Courier"}, children=children)
@@ -84,10 +116,6 @@ def inlineMath(child):
 
 def inlineCode(child):
     return style(child, color=(0xd0, 0x10, 0x40), fontFamily="Courier")
-
-@inline("references")
-def ref(node, name):
-    return "Chapter: " + name
 
 # def fract(counter, denominator):
 #    return MathNode(fract, [counter, denominator])
