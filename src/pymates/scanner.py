@@ -116,6 +116,16 @@ class Scanner:
                 self.lineCount += 1
             self.ch = chr(0) # eof
 
+    # A space following a function name is not a space if followed by an identifier letter, "("" or "{",
+    # because without the space the next character would become part of the function call.
+    def isFunctionNameDelimiter(self):
+        if self.ch == ' ' or self.ch == '\t':
+            if len(self.src) - self.readOffset >= 1:
+                ch = self.src[self.readOffset]
+                if ch == '{' or ch == '(' or ch == '_' or (self.ch >= 'a' and self.ch <= 'z') or (self.ch >= 'A' and self.ch <= 'Z') or (self.ch >= '0' and self.ch <= '9'):
+                    return True
+        return False
+
     def peekString(self, lookahead):
         if len(self.src) - self.readOffset < len(lookahead):
             return False
@@ -349,7 +359,10 @@ class Scanner:
                     if self.ch == '(':
                         self.mode = ScannerMode.FunctionArgs
                     elif self.ch == '\n' or self.ch == '\t' or self.ch == '\r' or self.ch == ' ':
-                        self.skipWhitespace(False)
+                        if self.isFunctionNameDelimiter():
+                            self.next()
+                        # else:
+                        #    self.skipWhitespace(False)
                         self.mode = ScannerMode.Normal
                     elif self.ch == '{' or self.ch == '\\' or self.ch == '_' or selr.ch == '*':
                         self.mode = ScannerMode.Normal

@@ -336,6 +336,7 @@ class TextCursor:
         self.block = None
         self.font = None
         self.textColor = None
+        self._endsWithSpace = False
         self.formatStack = []
 
     def startBlock(self, align = Alignment.Left, font = None, textColor = None, padding=None, margin=None):
@@ -344,6 +345,7 @@ class TextCursor:
         self.textColor = None
         if len(self.formatStack) != 0:
             self.formatStack = []
+        self._endsWithSpace = False
         return self.block
 
     def blockFormat(self, align = None, font = None, textColor = None, padding=None, margin=None):
@@ -362,7 +364,7 @@ class TextCursor:
         if self.block == None:
             raise Exception("No block")
         if str.startswith(" "):
-            if not self.block.isEmpty():
+            if not self._endsWithSpace:
                 TextString(self.block, " ", self.font, self.textColor)
         words = str.split()
         for i in range(0, len(words)):
@@ -371,6 +373,9 @@ class TextCursor:
             TextString(self.block, words[i], self.font, self.textColor)
         if len(words) != 0 and str.endswith(" "):
             TextString(self.block, " ", self.font, self.textColor)
+            self._endsWithSpace = True
+        else:
+            self._endsWithSpace = False
 
     def startFormat(self, font = None, textColor = None):
         self.formatStack.append({"textColor": self.textColor, "font": self.font})
@@ -387,6 +392,7 @@ class TextCursor:
         self.textColor = f["textColor"]
 
     def textBox(self, name):
+        self._endsWithSpace = False
         subFlow = self.flow.doc.newNamedFlow(name)
         box = TextBox(self.block, subFlow)
         return box
