@@ -51,12 +51,30 @@ class Margin:
         self.right = right
         self.bottom = bottom
 
+    def fromStyle(style):
+        if style == None:
+            return Margin(0, 0, 0, 0)
+        return Margin(
+            style["left"] if "left" in style else 0,
+            style["top"] if "top" in style else 0,
+            style["right"] if "right" in style else 0,
+            style["bottom"] if "bottom" in style else 0)
+
 class Padding:
     def __init__(self, left, top, right, bottom):
         self.left = left
         self.top = top
         self.right = right
         self.bottom = bottom
+
+    def fromStyle(style):
+        if style == None:
+            return Padding(0, 0, 0, 0)
+        return Padding(
+            style["left"] if "left" in style else 0,
+            style["top"] if "top" in style else 0,
+            style["right"] if "right" in style else 0,
+            style["bottom"] if "bottom" in style else 0)
 
 class Alignment(Enum):
     Left = 0

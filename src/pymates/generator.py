@@ -8,7 +8,7 @@ def register(func, gen):
     generators[func] = gen
 
 def generate(docNode):
-    pl = DefaultPageLayout(docNode.style["pageSize"], docNode.style["margin"])
+    pl = DefaultPageLayout(docNode.style["pageSize"], Margin.fromStyle(docNode.style["margin"]))
     f = font("Helvetica", 12)
     doc = Document(pl, f)
     flow = doc.newOrderedFlow()

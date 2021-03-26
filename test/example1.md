@@ -1,10 +1,12 @@
 \pagesize(A4)
+\margin(20*mm, 20*mm, 20*mm, 20*mm)
 
 # Hello World
 
 Here comes the \bold{fett and \italic{kursiv}} \italic{text}.
 
-This text is \style(fontWeight=FontWeight.Bold){bold}.
+This text is \style(fontWeight=FontWeight.Bold){bold}. It has no
+newline problem.
 
 Now something in \red{RED}, with \underline{underline} and with \strike{strike out}.
 Futhermore, we can write \tt{typewriter}.

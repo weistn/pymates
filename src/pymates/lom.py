@@ -364,7 +364,7 @@ class TextCursor:
         if self.block == None:
             raise Exception("No block")
         if str.startswith(" "):
-            if not self._endsWithSpace:
+            if not self._endsWithSpace and not self.block.isEmpty():
                 TextString(self.block, " ", self.font, self.textColor)
         words = str.split()
         for i in range(0, len(words)):

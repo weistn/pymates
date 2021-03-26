@@ -111,6 +111,9 @@ def justify(child = None):
 def margin(left=None, top=None, right=None, bottom=None, child=None):
     return style(child, margin={"left": left, "top": top, "right": right, "bottom": bottom})
 
+def padding(left=None, top=None, right=None, bottom=None, child=None):
+    return style(child, padding={"left": left, "top": top, "right": right, "bottom": bottom})
+
 def inlineMath(child):
     return style(child, math=True)
 
