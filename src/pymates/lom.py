@@ -55,7 +55,6 @@ class Color:
 
 class Document:
     def __init__(self, pageLayout, font, textColor = None):
-        self.namedFlows = {}
         self.flows = []
         self.pageLayout = pageLayout
         self.font = font
@@ -65,16 +64,9 @@ class Document:
             self.textColor = textColor
         self._flowIndex = 0
 
-    def newOrderedFlow(self):
+    def newFlow(self):
         flow = TextFlow(self, None)
         self.flows.append(flow)
-        return flow
-
-    def newNamedFlow(self, name):
-        if name in self.flows:
-            raise Exception(f"Flow of name {name} already exists")
-        flow = TextFlow(self, name)
-        self.namedFlows[name] = flow
         return flow
 
     def startLayout(self):
@@ -97,14 +89,28 @@ class Document:
                 self.flows[self._flowIndex].startLayout()
 
 class TextFlow:
-    def __init__(self, doc, name):
-        self.doc = doc
+    def __init__(self, docOrFlow, name):
+        if isinstance(docOrFlow, Document):
+            self.doc = docOrFlow
+            self.parentFlow = None
+        elif isinstance(docOrFlow, TextFlow):
+            self.doc = docOrFlow.doc
+            self.pageFlow = docOrFlow
+        else:
+            raise BaseException("Parent of a TextFlow must be the Document or another TextFlow")
         self.name = name
         self.cursor = TextCursor(self)
         self.blocks = []
-        self.namedFlows = []
+        self.namedFlows = {}
         self._blockIndex = 0
         self._pageLayout = None
+
+    def newNamedFlow(self, name):
+        if name in self.namedFlows:
+            raise Exception(f"Flow of name {name} already exists")
+        flow = TextFlow(self, name)
+        self.namedFlows[name] = flow
+        return flow
 
     def pageLayout(self):
         if self._pageLayout == None:
@@ -297,9 +303,9 @@ class TextObject:
         return False
 
 class TextBox(TextObject):
-    def __init__(self, block, subFlow):
+    def __init__(self, block, flow):
         super(TextBox, self).__init__(block)
-        self.subFlow = subFlow
+        self.flow = flow
         self.ascent = 0
         self.descent = 0
         self.advance = 0
@@ -394,8 +400,8 @@ class TextCursor:
 
     def textBox(self, name):
         self._endsWithSpace = False
-        subFlow = self.flow.doc.newNamedFlow(name)
-        box = TextBox(self.block, subFlow)
+        flow = self.flow.newNamedFlow(name)
+        box = TextBox(self.block, flow)
         return box
 
     def currentFont(self):
@@ -502,11 +508,11 @@ class PageBox:
             boxWidthPoints = self.widthPoints - textBox.marginPoints.left - textBox.marginPoints.right
             p = PageBox(self, xPoints, yPoints, boxWidthPoints, self.maxHeightPoints - yPoints)
             print(f"B {boxWidthPoints}")
-            textBox.subFlow.startLayout()
-            missingBoxes = p.fill(textBox.subFlow, [])
+            textBox.flow.startLayout()
+            missingBoxes = p.fill(textBox.flow, [])
             if len(missingBoxes) != 0:
                 print("TextBox in overfull TextBox")
-            if not textBox.subFlow.consumed():
+            if not textBox.flow.consumed():
                 self.removeChildBox(p)
                 break
             textBoxes = textBoxes[1:]
@@ -539,11 +545,11 @@ class PageBox:
                     boxWidthPoints = self.widthPoints - textBox.marginPoints.left - textBox.marginPoints.right
                     p = PageBox(self, xPoints, yPoints, boxWidthPoints, self.maxHeightPoints - yPoints)
                     print(f"B {boxWidthPoints}")
-                    textBox.subFlow.startLayout()
-                    missingBoxes = p.fill(textBox.subFlow, [])
+                    textBox.flow.startLayout()
+                    missingBoxes = p.fill(textBox.flow, [])
                     if len(missingBoxes) != 0:
                         print("TextBox in overfull TextBox")
-                    if not textBox.subFlow.consumed():
+                    if not textBox.flow.consumed():
                         textBoxes.append(textBox)
                         self.removeChildBox(p)
                     else:

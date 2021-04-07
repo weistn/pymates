@@ -17,7 +17,7 @@ def generate(docNode):
     pl = generatePageLayout(docNode.style)
     f = font("Helvetica", 12)
     doc = Document(pl, f)
-    flow = doc.newOrderedFlow()
+    flow = doc.newFlow()
     cursor = flow.cursor
 
     genNode(docNode, doc, cursor)
@@ -41,7 +41,7 @@ def genDocument(node, doc, cursor):
 
 def genParag(node, doc, cursor):
     if "flow" in node.style:
-        flow = doc.newNamedFlow(node.style["flow"])
+        flow = cursor.flow.newNamedFlow(node.style["flow"])
         cursor = flow.cursor
     # ("genParag")
     align = node.style["align"] if "align" in node.style else Alignment.Left
