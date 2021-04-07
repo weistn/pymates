@@ -1,4 +1,5 @@
 import sys
+import os
 import pymates.markdown
 import pymates.sizes
 import pymates.pdfbackend
@@ -26,8 +27,9 @@ if __name__ == '__main__':
     pymates.pdfbackend.pdfInit()
     pymates.lom.setFontBackend(pymates.pdfbackend)
 
-    registerFont(TTFont('Lobster', 'Lobster-Regular.ttf'))
-    registerFont(TTFont('Roboto', 'Roboto-Regular.ttf'))
+    fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
+    registerFont(TTFont('Lobster', os.path.join(fontPath, 'Lobster-Regular.ttf')))
+    registerFont(TTFont('Roboto', os.path.join(fontPath, 'Roboto-Regular.ttf')))
 
     file = open(sys.argv[1])
     content = file.read()

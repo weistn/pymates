@@ -1,4 +1,5 @@
 import sys
+import os
 import pymates.markdown
 import pymates.sizes
 from pymates.mainwindow import MainWindow
@@ -39,10 +40,12 @@ if __name__ == '__main__':
     app.setApplicationDisplayName("Preview")
     app.setApplicationName("Preview")
 
-    i = QFontDatabase.addApplicationFont("/Users/weis/Projects/pymates/Lobster-Regular.ttf")
+    fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
+
+    i = QFontDatabase.addApplicationFont(os.path.join(fontPath, "Lobster-Regular.ttf"))
     print(i)
     print(QFontDatabase.applicationFontFamilies(i))
-    i = QFontDatabase.addApplicationFont("/Users/weis/Projects/pymates/Roboto-Regular.ttf")
+    i = QFontDatabase.addApplicationFont(os.path.join(fontPath, "Roboto-Regular.ttf"))
     print(i)
     print(QFontDatabase.applicationFontFamilies(i))
     # print(f"------------------------> {font('Lobster', 12).advance('Hello World')}")
