@@ -146,6 +146,18 @@ def flow(name = "", scope = "document"):
         raise BaseException("A flow with 'scope=flow' must have a name")
     return style(flow = name, flowScope = scope)
 
+def py(value):
+    return value
+
+@inline("counters")
+def setvar(node, name, value):
+    node.document().setVariable(name, value)
+    return None
+
+@inline("references")
+def var(node, name):
+    return node.document().variable(name)
+
 # -----------------------------------------
 
 def mybox(*children):

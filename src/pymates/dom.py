@@ -69,6 +69,7 @@ class DocumentNode(Node):
         self.style = {"pageSize": pymates.sizes.A4, "margin": pymates.sizes.Margin(20, 20, 20, 20), "pageBox": []}
         self.labels = {}
         self.counters = {}
+        self.vars = {}
 
     def setLabel(self, name, node):
         if name in self.labels:
@@ -95,6 +96,14 @@ class DocumentNode(Node):
 
     def isContainer(self):
         return True
+
+    def setVariable(self, name, value):
+        self.vars[name] = value
+
+    def variable(self, name):
+        if not name in self.vars:
+            raise BaseException(f"Unknown variable '{name}'")
+        return self.vars[name]
 
 class ParagNode(Node):
     def __init__(self, func, style = None, children=None, config = None, parentContainer = None, isContainer = False):

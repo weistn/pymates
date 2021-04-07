@@ -69,8 +69,8 @@ class Evaluator:
                 # Insert the result
                 if isinstance(result, list) or isinstance(result, tuple):
                     for r in result:
-                        if isinstance(r, str):
-                            parent.insertChild(i, r)
+                        if isinstance(r, (str, int, float, bool)):
+                            parent.insertChild(i, str(r))
                             i += 1
                         elif isinstance(r, Node):
                             r.indent = node.indent
@@ -78,8 +78,8 @@ class Evaluator:
                             i += 1
                         else:
                             raise BaseException(f"Wrong return type of function {node.func.__name__}")
-                elif isinstance(result, str):
-                    parent.insertChild(i, result)
+                elif isinstance(result, (str, int, float, bool)):
+                    parent.insertChild(i, str(result))
                     i += 1
                 elif isinstance(result, Node):
                     result.indent = node.indent

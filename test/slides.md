@@ -1,9 +1,10 @@
 \slidedeck
-\footer Hans Wurst, Rautavistische Systeme
+\setvar("author", "Hans Wurst")
+\footer \var("author"), Rautavistische Systeme
 \slide
 \title Slide Title One
 
-This is slide number one.
+This is slide number one. 2 + 2 = \py(2+2).
 
 With more text here.
 
