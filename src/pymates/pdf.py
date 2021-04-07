@@ -3,7 +3,7 @@ import os
 import pymates.markdown
 import pymates.sizes
 import pymates.pdfbackend
-import pymates.lom
+import pymates.fonts
 from pymates.parser import Parser
 from pymates.scanner import Scanner
 from pymates.evaluator import Evaluator
@@ -25,7 +25,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     pymates.pdfbackend.pdfInit()
-    pymates.lom.setFontBackend(pymates.pdfbackend)
+    pymates.fonts.setBackend(pymates.pdfbackend)
 
     fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
     registerFont(TTFont('Lobster', os.path.join(fontPath, 'Lobster-Regular.ttf')))

@@ -1,5 +1,6 @@
 from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode, inline
-from pymates.lom import FontWeight, Alignment
+from pymates.fonts import FontWeight
+from pymates.lom import Alignment
 
 def document():
     return DocumentNode(document)

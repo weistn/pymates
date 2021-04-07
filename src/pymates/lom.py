@@ -1,10 +1,5 @@
-from pymates.sizes import Margin, Padding, Alignment, FontWeight
-
-backend = None
-
-def setFontBackend(b):
-    global backend
-    backend = b
+from pymates.sizes import Margin, Padding, Alignment
+from pymates.fonts import Font
 
 #def ptToPx(pt, dpi):
 #    return pt/72*dpi
@@ -15,16 +10,7 @@ def setFontBackend(b):
 #def mmToPt(mm):
 #    return mm * 2.8346456693
 
-fonts = {}
 colors = {}
-
-def font(family, size, weight = FontWeight.Normal, italic = False, underline = False, strikeOut = False):
-    name = f"{family}|{size}|{weight}|{italic}|{underline}|{strikeOut}"
-    if name in fonts:
-        return fonts[name]
-    f = Font(family, size, weight, italic, underline, strikeOut)
-    fonts[name] = f
-    return f
 
 def color(r, g ,b):
     name = f"{r},{g},{b}"
@@ -33,19 +19,6 @@ def color(r, g ,b):
     c = Color(r, g, b)
     colors[name] = c
     return c
-
-class Font:
-    def __init__(self, family, size, weight =  FontWeight.Normal, italic = False, underline = False, strikeOut = False):
-        self.family = family
-        self.size = size
-        self.weight = weight
-        self.italic = italic
-        self.underline = underline
-        self.strikeOut = strikeOut
-        self.fontmetrics = backend.nativeFontMetrics(self)
-
-    def advance(self, str):
-        return self.fontmetrics.horizontalAdvance(str, -1)
 
 class Color:
     def __init__(self, r, g, b):

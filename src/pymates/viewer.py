@@ -8,10 +8,9 @@ from pymates.scanner import Scanner
 from pymates.evaluator import Evaluator
 from pymates.treeify import treeify
 from pymates.generator import generate
-from pymates.lom import FontWeight, Alignment
+from pymates.fonts import FontWeight
 from PySide6.QtWidgets import QApplication
 
-from pymates.lom import font
 from PySide6.QtGui import QFontDatabase
 
 if __name__ == '__main__':

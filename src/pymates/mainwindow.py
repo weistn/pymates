@@ -3,7 +3,7 @@ from PySide6.QtGui import QPalette, QPainter, QTransform, QColor
 from PySide6.QtCore import Qt, QRect
 from PySide6.QtWidgets import QMainWindow, QScrollArea, QApplication, QWidget
 from pymates.qtbackend import hPtToPx, wPtToPx, qtInit
-from pymates import lom
+import pymates.fonts
 import pymates.qtbackend
 
 class PageArea(QWidget):
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         self.scroll.setWidget(self.pageArea)
         self.setCentralWidget(self.scroll)
         qtInit(self.pageArea)
-        lom.setFontBackend(pymates.qtbackend)
+        pymates.fonts.setBackend(pymates.qtbackend)
 
     def setDocument(self, doc):
         layouter = Layouter(doc)
@@ -71,7 +71,8 @@ class MainWindow(QMainWindow):
         self.pageArea.setFixedHeight(self.pageArea.widgetHeightPx)
         self.pageArea.setFixedWidth(self.pageArea.widgetWidthPx)
 
-from pymates.lom import PageLayout, Document, Layouter, font, color
+from pymates.lom import PageLayout, Document, Layouter, color
+from pymates.fonts import font
 from pymates.sizes import Margin, Alignment, A4
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
-from pymates.lom import PageLayout, PageLayoutBox, Document, font, Alignment, color
+from pymates.lom import PageLayout, PageLayoutBox, Document, Alignment, color
 from pymates.sizes import Padding, Margin, Rect
+from pymates.fonts import font
 from pymates import dom, markdown
 
 generators = {}
