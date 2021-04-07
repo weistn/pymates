@@ -1,5 +1,5 @@
-from pymates.lom import DefaultPageLayout, Document, font, Alignment, color
-from pymates.sizes import Padding, Margin
+from pymates.lom import PageLayout, PageLayoutBox, Document, font, Alignment, color
+from pymates.sizes import Padding, Margin, Rect
 from pymates import dom, markdown
 
 generators = {}
@@ -7,8 +7,14 @@ generators = {}
 def register(func, gen):
     generators[func] = gen
 
+def generatePageLayout(style):
+    pl = PageLayout(style["pageSize"], Margin.fromStyle(style["margin"]))
+    for pageBox in style["pageBox"]:
+        PageLayoutBox(pl, pageBox["flow"], Rect.fromStyle(pageBox["rect"]))
+    return pl
+
 def generate(docNode):
-    pl = DefaultPageLayout(docNode.style["pageSize"], Margin.fromStyle(docNode.style["margin"]))
+    pl = generatePageLayout(docNode.style)
     f = font("Helvetica", 12)
     doc = Document(pl, f)
     flow = doc.newOrderedFlow()
@@ -34,6 +40,9 @@ def genDocument(node, doc, cursor):
     genNodes(node.children, doc, cursor)
 
 def genParag(node, doc, cursor):
+    if "flow" in node.style:
+        flow = doc.newNamedFlow(node.style["flow"])
+        cursor = flow.cursor
     # ("genParag")
     align = node.style["align"] if "align" in node.style else Alignment.Left
     textFont = deriveFont(doc.font, node.style)

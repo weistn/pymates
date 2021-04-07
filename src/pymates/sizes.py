@@ -76,6 +76,18 @@ class Padding:
             style["right"] if "right" in style else 0,
             style["bottom"] if "bottom" in style else 0)
 
+class Rect:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def fromStyle(style):
+        if style == None:
+            return Rect(0, 0, 0, 0)
+        return Rect(style[0], style[1], style[2], style[3])
+
 class Alignment(Enum):
     Left = 0
     Right = 1

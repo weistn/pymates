@@ -1,7 +1,10 @@
 \pagesize(A4)
-\margin(20*mm, 20*mm, 20*mm, 20*mm)
+\margin(20*mm, 20*mm, 60*mm, 20*mm)
+\pageBox("mybox", (160*mm, 20*mm, 40*mm, 200*mm))
 
 # Hello World
+
+\mybox A B C D E F G H I J K L M N
 
 Here comes the \bold{fett and \italic{kursiv}} \italic{text}.
 

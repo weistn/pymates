@@ -7,7 +7,13 @@ def mergeStyle(s1, s2):
     for k in s1:
         s[k] = s1[k]
     for k in s2:
-        s[k] = s2[k]
+        if k == "pageBox" and "pageBox" in s:
+            if isinstance(s[k], list):
+                s[k].append(s2[k])
+            else:
+                s[k] = [s[k], s2[k]]
+        else:
+            s[k] = s2[k]
     return s
 
 def checkBool(key, val):
@@ -60,7 +66,7 @@ class Node:
 class DocumentNode(Node):
     def __init__(self, func):
         super(DocumentNode, self).__init__(func)
-        self.style = {"pageSize": pymates.sizes.A4, "margin": pymates.sizes.Margin(20, 20, 20, 20)}
+        self.style = {"pageSize": pymates.sizes.A4, "margin": pymates.sizes.Margin(20, 20, 20, 20), "pageBox": []}
         self.labels = {}
         self.counters = {}
 

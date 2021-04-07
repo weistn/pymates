@@ -102,6 +102,7 @@ class TextFlow:
         self.name = name
         self.cursor = TextCursor(self)
         self.blocks = []
+        self.namedFlows = []
         self._blockIndex = 0
         self._pageLayout = None
 
@@ -413,20 +414,48 @@ class AbstractPageLayout:
     def nextPageLayout(self):
         return self
 
-class DefaultPageLayout(AbstractPageLayout):
+class PageLayout(AbstractPageLayout):
     def __init__(self, pageSize, margin):
-        super(DefaultPageLayout, self).__init__(pageSize)
+        super(PageLayout, self).__init__(pageSize)
         self.margin = margin
+        self.layoutBoxes = []
+
+    def lookupFlow(self, flow, flowName):
+        if flow != None:
+            if flow.namedFlows != None:
+                if flowName in flow.namedFlows:
+                    return flow.namedFlows[flowName]
+        if flowName in flow.doc.namedFlows:
+            return flow.doc.namedFlows[flowName]
+        return None
 
     def fillPage(self, doc, floatBoxes):
+        # Create a new page
         page = Page(self, doc)
+        # Create a box on the page which is determined by page size and margins
         w = self.width
         w -= self.margin.left + self.margin.right
         h = self.height
         h -= self.margin.top + self.margin.bottom
         self.box = PageBox(page, self.margin.left, self.margin.top, w, h)
-        floatBoxes = self.box.fill(doc.currentFlow(), floatBoxes)
+        flow = doc.currentFlow()
+        floatBoxes = self.box.fill(flow, floatBoxes)
+        #
+        for layoutBox in self.layoutBoxes:
+            namedFlow = self.lookupFlow(flow, layoutBox.flowName)
+            if namedFlow == None:
+                print(f"Unknown flow {layoutBox.flowName}")
+                continue
+            box = PageBox(page, layoutBox.rect.x, layoutBox.rect.y, layoutBox.rect.width, layoutBox.rect.height)
+            box.fill(namedFlow, [])
         return (page, floatBoxes)
+
+class PageLayoutBox:
+    def __init__(self, pageLayout, flowName, rect):
+        self.pageLayout = pageLayout
+        self.rect = rect
+        self.flowName = flowName
+        pageLayout.layoutBoxes.append(self)
 
 class Page:
     def __init__(self, pageLayout, doc):
@@ -518,7 +547,7 @@ class PageBox:
                         textBoxes.append(textBox)
                         self.removeChildBox(p)
                     else:
-                        self.heightPoints += leading + p.heightPoints + textBox.marginPoints.bottom
+                        self.heightPoints += leading + p.heightPoints + textBox.marginPoints.bottom            
         return textBoxes
 
     def draw(self, painter):
@@ -547,13 +576,16 @@ class Layouter:
     def layout(self):
         self.doc.startLayout()
         floatBoxes = []
+        # Iterate over all flows
         while True:
             print("F")
             flow = self.doc.currentFlow()
             if flow == None:
                 return
+            # Choose the page layout for the flow
             pageLayout = flow.pageLayout()
             while True:
+                # Create pages until the flow is consumed
                 print("P")
                 page, floatBoxes = pageLayout.fillPage(self.doc, floatBoxes)
                 self.pages.append(page)

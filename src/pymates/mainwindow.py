@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.pageArea.setFixedHeight(self.pageArea.widgetHeightPx)
         self.pageArea.setFixedWidth(self.pageArea.widgetWidthPx)
 
-from pymates.lom import DefaultPageLayout, Document, Layouter, font, color
+from pymates.lom import PageLayout, Document, Layouter, font, color
 from pymates.sizes import Margin, Alignment, A4
 
 if __name__ == '__main__':
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     app.setApplicationName("Preview")
     mw = MainWindow()
 
-    pl = DefaultPageLayout(A4, Margin(20, 20, 20, 20))
+    pl = PageLayout(A4, Margin(20, 20, 20, 20))
     # ps = PageSize(mmToPt(100), mmToPt(50))
     f = font("Helvetica", 12)
     doc = Document(pl, f)

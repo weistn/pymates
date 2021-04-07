@@ -126,6 +126,36 @@ def inlineCode(child):
 def span(*children):
     return SpanNode(span, list(children))
 
+def pageLayout(repeat = False):
+    return style(child, pageLayout={"repeat": repeat})
+
+def nextPageLayout(repeat = False):
+    return style(child, nextPageLayout={"repeat": repeat})
+
+def pageBox(flow, rect):
+    return style(None, pageBox={"rect": rect, "flow": flow})
+
+def pageBreak():
+    return style(child, pageBreak=True)
+
+# -----------------------------------------
+
+def mybox(*children):
+    return p(style(flow = "mybox"), *children)
+
+from pymates.sizes import mm, A4, landscape
+
+def slidedeck():
+    return pageSize(landscape(A4))
+
+def slide(*children):
+    return p(pageBreak(), pageLayout(), margin(20*mm, 50*mm, 20*mm, 20*mm), pageBox(flow="title", rect=(20*mm, 15*mm, 250*mm, 30*mm)), *children)
+
+def title(*children):
+    return p(style(subflow = "title"), *children)
+
+# -----------------------------------------
+
 if __name__ == '__main__':
     deck().append(
         slide(tmpl="black", bold=True).append(
