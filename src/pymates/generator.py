@@ -7,42 +7,73 @@ generators = {}
 def register(func, gen):
     generators[func] = gen
 
-def generatePageLayout(style):
-    pl = PageLayout(style["pageSize"], Margin.fromStyle(style["margin"]))
-    for pageBox in style["pageBox"]:
-        PageLayoutBox(pl, pageBox["flow"], Rect.fromStyle(pageBox["rect"]))
+def generatePageLayout(docNode, style):
+    if "margin" in style:
+        margin = Margin.fromStyle(style["margin"])
+    else:
+        margin = Margin.fromStyle(docNode.style["margin"])
+    pl = PageLayout(docNode.style["pageSize"], margin)
+    if "pageBox" in style:
+        if isinstance(style["pageBox"], list):
+            for pageBox in style["pageBox"]:
+                PageLayoutBox(pl, pageBox["flow"], Rect.fromStyle(pageBox["rect"]))
+        else:
+            pageBox = style["pageBox"]
+            PageLayoutBox(pl, pageBox["flow"], Rect.fromStyle(pageBox["rect"]))
     return pl
 
-def generate(docNode):
-    pl = generatePageLayout(docNode.style)
-    f = font("Helvetica", 12)
-    doc = Document(pl, f)
+def ensureCursor(doc, cursor):
+    if cursor != None:
+        return cursor
     flow = doc.newFlow()
     cursor = flow.cursor
+    return cursor
 
-    genNode(docNode, doc, cursor)
+def generate(docNode):
+    pl = generatePageLayout(docNode, docNode.style)
+    f = font("Helvetica", 12)
+    doc = Document(pl, f)
+    # flow = doc.newFlow()
+    # cursor = flow.cursor
+    # genNode(docNode, doc, cursor)
+    genNode(docNode, doc, None)
 
     return doc
 
 def genNodes(nodes, doc, cursor):
     if nodes != None:
         for n in nodes:
-            genNode(n, doc, cursor)
+            cursor = genNode(n, doc, cursor)
+    return cursor
 
 def genNode(node, doc, cursor):
     if isinstance(node, str):
-        genText(node, doc, cursor)
+        return genText(node, doc, cursor)
     else:
         # print(node.func)
-        generators[node.func](node, doc, cursor)
+        return generators[node.func](node, doc, cursor)
 
 def genDocument(node, doc, cursor):
-    genNodes(node.children, doc, cursor)
+    return genNodes(node.children, doc, cursor)
 
 def genParag(node, doc, cursor):
+    returnCursor = None
     if "flow" in node.style:
-        flow = cursor.flow.newNamedFlow(node.style["flow"])
-        cursor = flow.cursor
+        flowName = node.style["flow"]
+        flowScope = node.style["flowScope"] if "flowScope" in node.style else "document"
+        if flowName == "":
+            flow = doc.newFlow()
+            if "pageLayout" in node.style:
+                pl = generatePageLayout(node.document(), node.style)
+                flow.setPageLayout(pl)
+            cursor = flow.cursor
+        else:
+            cursor = ensureCursor(doc, cursor)
+            returnCursor = cursor
+            flow = (cursor.flow.doc if flowScope == "document" else cursor.flow).newNamedFlow(flowName)
+            cursor = flow.cursor
+    else:
+        cursor = ensureCursor(doc, cursor)
     # ("genParag")
     align = node.style["align"] if "align" in node.style else Alignment.Left
     textFont = deriveFont(doc.font, node.style)
@@ -53,7 +84,10 @@ def genParag(node, doc, cursor):
     cursor.startBlock(font=textFont, textColor=textColor, align=align)
     if node.children != None:
         for n in node.children:
-            genNode(n, doc, cursor)
+            cursor = genNode(n, doc, cursor)
+    if returnCursor != None:
+        return returnCursor
+    return cursor
 
 def genStyle(node, doc, cursor):
     # print("genStyle")
@@ -72,13 +106,15 @@ def genStyle(node, doc, cursor):
         genNodes(node.children, doc, cursor)
         cursor.endFormat()
     # print("endStyle")
+    return cursor
 
 def genSpan(node, doc, cursor):
-    genNodes(node.children, doc, cursor)
+    return genNodes(node.children, doc, cursor)
 
 def genText(node, doc, cursor):
     # print(f"genText {node}")
     cursor.text(node)
+    return cursor
 
 def deriveFont(baseFont, style):
     if style == None:

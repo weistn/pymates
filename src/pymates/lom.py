@@ -63,10 +63,18 @@ class Document:
         else:
             self.textColor = textColor
         self._flowIndex = 0
+        self.namedFlows = {}
 
     def newFlow(self):
         flow = TextFlow(self, None)
         self.flows.append(flow)
+        return flow
+
+    def newNamedFlow(self, name):
+        if name in self.namedFlows:
+            raise Exception(f"Flow of name {name} already exists")
+        flow = TextFlow(self, name)
+        self.namedFlows[name] = flow
         return flow
 
     def startLayout(self):
@@ -88,6 +96,11 @@ class Document:
             if self._flowIndex < len(self.flows):
                 self.flows[self._flowIndex].startLayout()
 
+    def lookupFlow(self, flowName):
+        if flowName in self.namedFlows:
+            return self.namedFlows[flowName]
+        return None
+        
 class TextFlow:
     def __init__(self, docOrFlow, name):
         if isinstance(docOrFlow, Document):
@@ -111,6 +124,11 @@ class TextFlow:
         flow = TextFlow(self, name)
         self.namedFlows[name] = flow
         return flow
+
+    def lookupFlow(self, flowName):
+        if flowName in self.namedFlows:
+            return self.namedFlows[flowName]
+        return None
 
     def pageLayout(self):
         if self._pageLayout == None:
@@ -427,13 +445,10 @@ class PageLayout(AbstractPageLayout):
         self.layoutBoxes = []
 
     def lookupFlow(self, flow, flowName):
-        if flow != None:
-            if flow.namedFlows != None:
-                if flowName in flow.namedFlows:
-                    return flow.namedFlows[flowName]
-        if flowName in flow.doc.namedFlows:
-            return flow.doc.namedFlows[flowName]
-        return None
+        f = flow.lookupFlow(flowName)
+        if f != None:
+            return f
+        return flow.doc.lookupFlow(flowName)
 
     def fillPage(self, doc, floatBoxes):
         # Create a new page
@@ -452,6 +467,7 @@ class PageLayout(AbstractPageLayout):
             if namedFlow == None:
                 print(f"Unknown flow {layoutBox.flowName}")
                 continue
+            namedFlow.startLayout()
             box = PageBox(page, layoutBox.rect.x, layoutBox.rect.y, layoutBox.rect.width, layoutBox.rect.height)
             box.fill(namedFlow, [])
         return (page, floatBoxes)

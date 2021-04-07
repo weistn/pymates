@@ -5,7 +5,7 @@ def document():
     return DocumentNode(document)
 
 def pagesize(size):
-    return style(pagesize=size)
+    return style(pageSize=size)
 
 @inline("counters")
 def counter(node, counterFmt, refFmt, *names):
@@ -127,16 +127,24 @@ def span(*children):
     return SpanNode(span, list(children))
 
 def pageLayout(repeat = False):
-    return style(child, pageLayout={"repeat": repeat})
+    return style(None, pageLayout={"repeat": repeat})
 
 def nextPageLayout(repeat = False):
-    return style(child, nextPageLayout={"repeat": repeat})
+    return style(None, nextPageLayout={"repeat": repeat})
 
 def pageBox(flow, rect):
     return style(None, pageBox={"rect": rect, "flow": flow})
 
 def pageBreak():
     return style(child, pageBreak=True)
+
+# scope is "document" or "flow"
+def flow(name = "", scope = "document"):
+    if scope != "document" and scope != "flow":
+        raise BaseException(f"Unknown flow scope '{scope}'")
+    if name == "" and scope == "flow":
+        raise BaseException("A flow with 'scope=flow' must have a name")
+    return style(flow = name, flowScope = scope)
 
 # -----------------------------------------
 
@@ -146,13 +154,19 @@ def mybox(*children):
 from pymates.sizes import mm, A4, landscape
 
 def slidedeck():
-    return pageSize(landscape(A4))
+    return pagesize(landscape(A4))
 
 def slide(*children):
-    return p(pageBreak(), pageLayout(), margin(20*mm, 50*mm, 20*mm, 20*mm), pageBox(flow="title", rect=(20*mm, 15*mm, 250*mm, 30*mm)), *children)
+    return p(flow(), pageLayout(), margin(20*mm, 50*mm, 20*mm, 20*mm),
+             pageBox(flow="title", rect=(20*mm, 15*mm, 250*mm, 30*mm)),
+             pageBox(flow="footer", rect=(20*mm, 190*mm, 250*mm, 10*mm)),
+              *children)
 
 def title(*children):
-    return p(style(subflow = "title"), *children)
+    return h1(flow("title", "flow"), *children)
+
+def footer(localPage = False, *children):
+    return p(flow("footer", "flow" if localPage else "document"))
 
 # -----------------------------------------
 

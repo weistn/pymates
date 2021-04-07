@@ -54,6 +54,8 @@ class Margin:
     def fromStyle(style):
         if style == None:
             return Margin(0, 0, 0, 0)
+        if isinstance(style, Margin):
+            return style
         return Margin(
             style["left"] if "left" in style else 0,
             style["top"] if "top" in style else 0,
@@ -70,6 +72,8 @@ class Padding:
     def fromStyle(style):
         if style == None:
             return Padding(0, 0, 0, 0)
+        if isinstance(style, Padding):
+            return style
         return Padding(
             style["left"] if "left" in style else 0,
             style["top"] if "top" in style else 0,
@@ -86,6 +90,8 @@ class Rect:
     def fromStyle(style):
         if style == None:
             return Rect(0, 0, 0, 0)
+        if isinstance(style, Rect):
+            return style
         return Rect(style[0], style[1], style[2], style[3])
 
 class Alignment(Enum):
