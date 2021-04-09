@@ -1,3 +1,5 @@
+import os
+import pymates.fonts
 from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode, inline
 from pymates.lom import Alignment
 
@@ -157,6 +159,31 @@ def setvar(node, name, value):
 @inline("references")
 def var(node, name):
     return node.document().variable(name)
+
+# -----------------------------------------
+
+_lobster = False
+
+def lobster(child = None):
+    global _lobster
+    if not _lobster:
+        fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
+        pymates.fonts.registerFont(os.path.join(fontPath, "Lobster-Regular.ttf"), "Lobster", 400, False)
+        _lobster = True
+
+    return style(child, fontFamily = "Lobster")
+
+_roboto = False
+
+def roboto(child = None):
+    global _roboto
+    if not _roboto:
+        fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
+        pymates.fonts.registerFont(os.path.join(fontPath, "Roboto-Regular.ttf"), "Roboto", 400, False)
+        pymates.fonts.registerFont(os.path.join(fontPath, "Roboto-Bold.ttf"), "Roboto", 700, False)
+        _roboto = True
+
+    return style(child, fontFamily = "Roboto")
 
 # -----------------------------------------
 

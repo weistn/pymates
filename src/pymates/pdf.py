@@ -1,5 +1,4 @@
 import sys
-import os
 import pymates.markdown
 import pymates.sizes
 import pymates.pdfbackend
@@ -12,12 +11,6 @@ from pymates.generator import generate
 from pymates.lom import Layouter
 from reportlab.pdfgen import canvas
 
-# from pymates.lom import font
-# from PySide6.QtGui import QFontDatabase
-
-# from reportlab.pdfbase.pdfmetrics import registerFont
-# from reportlab.pdfbase.ttfonts import TTFont
-
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Wrong argument count")
@@ -25,10 +18,6 @@ if __name__ == '__main__':
 
     pymates.pdfbackend.pdfInit()
     pymates.fonts.setFontMetricsBackend(pymates.pdfbackend)
-
-    fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
-    registerFont(TTFont('Lobster', os.path.join(fontPath, 'Lobster-Regular.ttf')))
-    registerFont(TTFont('Roboto', os.path.join(fontPath, 'Roboto-Regular.ttf')))
 
     file = open(sys.argv[1])
     content = file.read()

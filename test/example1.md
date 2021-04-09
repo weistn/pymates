@@ -26,8 +26,8 @@ The text \red from here on is red, because of `\red`.
 
 As we have shown in \ref("intro"), ours is the best.
 
-\chapter\style(fontFamily="Lobster")\label("intro") In Lobster with g
-\chapter \style(fontFamily="Lobster") In Lobster with more g
+\chapter\lobster\label("intro") In Lobster with g
+\chapter \lobster In Lobster with more g
 \subchapter \red This is a sub-chapter
-\chapter\style(fontFamily="Roboto") In Roboto with g.
-\chapter\style(fontFamily="Roboto") In Roboto with \bold{bold g}.
+\chapter\roboto In Roboto with g.
+\chapter\roboto In Roboto with \bold{bold g}.

@@ -70,8 +70,8 @@ def nativeFontMetrics(font):
         qtFont(font)
     return qtFontMetrics(font.qfont)
 
-def loadFont(file, family, weight = 400, italic = False):
-    QFontDatabase.addApplicationFont(file)
+def loadFont(regfont):
+    QFontDatabase.addApplicationFont(regfont.file)
 
 class qtPainter:
     def __init__(self, qpainter):
