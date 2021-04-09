@@ -100,15 +100,4 @@ class Alignment(Enum):
     Justify = 2
     Center = 3
 
-class FontWeight(Enum):
-    Thin = 0
-    ExtraLight = 12
-    Light = 25
-    Normal = 50
-    Medium = 57
-    DemiBold = 63
-    Bold = 75
-    ExtraBold = 81
-    Black = 87
-
 _pymates_all_ = ["inch", "cm", "mm", "pica", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "landscape", "portrait"]

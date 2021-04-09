@@ -10,14 +10,13 @@ from pymates.evaluator import Evaluator
 from pymates.treeify import treeify
 from pymates.generator import generate
 from pymates.lom import Layouter
-from pymates.sizes import FontWeight
 from reportlab.pdfgen import canvas
 
 # from pymates.lom import font
 # from PySide6.QtGui import QFontDatabase
 
-from reportlab.pdfbase.pdfmetrics import registerFont
-from reportlab.pdfbase.ttfonts import TTFont
+# from reportlab.pdfbase.pdfmetrics import registerFont
+# from reportlab.pdfbase.ttfonts import TTFont
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -25,7 +24,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     pymates.pdfbackend.pdfInit()
-    pymates.fonts.setBackend(pymates.pdfbackend)
+    pymates.fonts.setFontMetricsBackend(pymates.pdfbackend)
 
     fontPath = os.path.join(os.path.dirname(pymates.__file__), "fonts")
     registerFont(TTFont('Lobster', os.path.join(fontPath, 'Lobster-Regular.ttf')))
@@ -40,7 +39,6 @@ if __name__ == '__main__':
     # Add builtins
     parser.addBuiltins(pymates.markdown)
     parser.addBuiltins(pymates.sizes)
-    parser.addBuiltin("FontWeight", FontWeight)
     parser.parse()
 
     ev = Evaluator()

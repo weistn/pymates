@@ -8,7 +8,7 @@
 
 Here comes the \bold{fett and \italic{kursiv}} \italic{text}.
 
-This text is \style(fontWeight=FontWeight.Bold){bold}. It has no
+This text is \style(fontWeight=700){bold}. It has no
 newline problem.
 
 Now something in \red{RED}, with \underline{underline} and with \strike{strike out}.
@@ -29,5 +29,5 @@ As we have shown in \ref("intro"), ours is the best.
 \chapter\style(fontFamily="Lobster")\label("intro") In Lobster with g
 \chapter \style(fontFamily="Lobster") In Lobster with more g
 \subchapter \red This is a sub-chapter
-\chapter\style(fontFamily="Roboto") In Roboto with g
-\chapter\style(fontFamily="Roboto") In Roboto with more g
+\chapter\style(fontFamily="Roboto") In Roboto with g.
+\chapter\style(fontFamily="Roboto") In Roboto with \bold{bold g}.

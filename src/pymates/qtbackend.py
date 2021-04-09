@@ -1,6 +1,5 @@
-from PySide6.QtGui import QColor, QFont, QFontMetricsF, QPainter
+from PySide6.QtGui import QColor, QFont, QFontMetricsF, QPainter, QFontDatabase
 from PySide6.QtCore import QPointF
-from pymates.sizes import FontWeight
 
 qpaintDevice = None
 xdpi = 72
@@ -29,26 +28,22 @@ def hPxToPt(px):
 def qtColor(color):
     color.qcolor = QColor(color.r, color.g, color.b)
 
+def qtMapWeight(weight):
+    if weight <= 100:
+        return QFont.Weight.Thin
+    if weight <= 300:
+        return QFont.Weight.Light
+    if weight <= 400:
+        return QFont.Weight.Normal
+    if weight <= 500:
+        return QFont.Weight.Medium
+    if weight <= 700:
+        return QFont.Weight.Bold
+    return QFont.Weight.Black
+
 def qtFont(font):
     qfont = QFont(font.family, font.size)
-    if font.weight == FontWeight.Thin:
-        qfont.setWeight(QFont.Thin)
-    elif font.weight == FontWeight.ExtraLight:
-        qfont.setWeight(QFont.ExtraLight)
-    elif font.weight == FontWeight.Light:
-        qfont.setWeight(QFont.Light)
-    elif font.weight == FontWeight.Normal:
-        qfont.setWeight(QFont.Normal)
-    elif font.weight == FontWeight.Medium:
-        qfont.setWeight(QFont.Medium)
-    elif font.weight == FontWeight.DemiBold:
-        qfont.setWeight(QFont.DemiBold)
-    elif font.weight == FontWeight.Bold:
-        qfont.setWeight(QFont.Bold)
-    elif font.weight == FontWeight.ExtraBold:
-        qfont.setWeight(QFont.ExtraBold)
-    elif font.weight == FontWeight.Black:
-        qfont.setWeight(QFont.Black)
+    qfont.setWeight(qtMapWeight(font.weight))
     if font.italic:
         qfont.setItalic(True)
     if font.underline:
@@ -74,6 +69,9 @@ def nativeFontMetrics(font):
     if not hasattr(font, "qfont"):
         qtFont(font)
     return qtFontMetrics(font.qfont)
+
+def loadFont(file, family, weight = 400, italic = False):
+    QFontDatabase.addApplicationFont(file)
 
 class qtPainter:
     def __init__(self, qpainter):

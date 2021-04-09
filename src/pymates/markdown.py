@@ -1,5 +1,4 @@
 from pymates.dom import DocumentNode, ParagNode, StyleNode, SpanNode, MathNode, inline
-from pymates.fonts import FontWeight
 from pymates.lom import Alignment
 
 def document():
@@ -71,7 +70,7 @@ def style(child = None, **styleInfo):
     return StyleNode(style, child=child, style=styleInfo)
 
 def bold(child = None):
-    return style(child, fontWeight=FontWeight.Bold)
+    return style(child, fontWeight=700)
 
 def italic(child = None):
     return style(child, italic=True)
