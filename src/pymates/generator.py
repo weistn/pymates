@@ -50,9 +50,15 @@ def genNodes(nodes, doc, cursor):
 def genNode(node, doc, cursor):
     if isinstance(node, str):
         return genText(node, doc, cursor)
-    else:
-        # print(node.func)
-        return generators[node.func](node, doc, cursor)
+    if isinstance(node, dom.ParagNode):
+        return genParag(node, doc, cursor)
+    if isinstance(node, dom.SpanNode):
+        return genSpan(node, doc, cursor)
+    if isinstance(node, dom.StyleNode):
+        return genStyle(node, doc, cursor)
+    if isinstance(node, dom.DocumentNode):
+        return genDocument(node, doc, cursor)
+    return generators[node.func](node, doc, cursor)
 
 def genDocument(node, doc, cursor):
     return genNodes(node.children, doc, cursor)
@@ -148,17 +154,3 @@ def derivePadding(basePadding, padding):
         padding["right"] if padding["right"] != None else basePadding.right,
         padding["bottom"] if padding["bottom"] != None else basePadding.bottom,        
     )
-
-register(markdown.document, genDocument)
-
-register(markdown.h1, genParag)
-register(markdown.h2, genParag)
-register(markdown.h3, genParag)
-register(markdown.h4, genParag)
-register(markdown.p, genParag)
-
-register(markdown.span, genSpan)
-
-register(markdown.style, genStyle)
-register(markdown.bold, genStyle)
-register(markdown.italic, genStyle)

@@ -187,25 +187,28 @@ def roboto(child = None):
 
 # -----------------------------------------
 
-def mybox(*children):
-    return p(style(flow = "mybox"), *children)
-
 from pymates.sizes import mm, A4, landscape
 
 def slidedeck():
     return pagesize(landscape(A4))
 
 def slide(*children):
-    return p(flow(), pageLayout(), margin(20*mm, 50*mm, 20*mm, 20*mm),
-             pageBox(flow="title", rect=(20*mm, 15*mm, 250*mm, 30*mm)),
-             pageBox(flow="footer", rect=(20*mm, 190*mm, 250*mm, 10*mm)),
-              *children)
+    return ParagNode(slide, style={}, parentContainer=document, isContainer=True, children=(
+        flow(), pageLayout(), margin(20*mm, 50*mm, 20*mm, 20*mm),
+        pageBox(flow="title", rect=(20*mm, 15*mm, 250*mm, 30*mm)),
+        pageBox(flow="footer", rect=(20*mm, 190*mm, 250*mm, 10*mm)),
+        *children
+    ))
 
 def title(*children):
-    return h1(flow("title", "flow"), *children)
+    return ParagNode(title, style={"fontSize": 32}, parentContainer=slide, children=(
+        flow("title", "flow"), *children
+    ))
 
 def footer(localPage = False, *children):
-    return p(flow("footer", "flow" if localPage else "document"))
+    return ParagNode(footer, style={"fontSize": 12}, parentContainer=slide, children=(
+        flow("footer", "flow" if localPage else "document"), *children
+    ))
 
 # -----------------------------------------
 
