@@ -31,7 +31,7 @@ class Node:
             self.children = children
         for c in self.children:
             c.parent = self
-        self.indent = 0
+        self.indent = -1
         self.className = None
         self.parent = None
         
@@ -60,9 +60,6 @@ class Node:
             return self.parent.section()
         return None
 
-    def isContainer(self):
-        return False
-
 class DocumentNode(Node):
     def __init__(self, func):
         super(DocumentNode, self).__init__(func)
@@ -70,6 +67,9 @@ class DocumentNode(Node):
         self.labels = {}
         self.counters = {}
         self.vars = {}
+        self.isDefaultContainer = True
+        self.isExplicitContainer = True
+        self.parentContainer = None
 
     def setLabel(self, name, node):
         if name in self.labels:
@@ -94,9 +94,6 @@ class DocumentNode(Node):
         self.counters[name] = 1
         return 1
 
-    def isContainer(self):
-        return True
-
     def setVariable(self, name, value):
         self.vars[name] = value
 
@@ -106,12 +103,13 @@ class DocumentNode(Node):
         return self.vars[name]
 
 class ParagNode(Node):
-    def __init__(self, func, style = None, children=None, config = None, parentContainer = None, isContainer = False):
+    def __init__(self, func, style = None, children=None, config = None, parentContainer = None, isDefaultContainer = False, isExplicitContainer = False):
         super(ParagNode, self).__init__(func, children)
         self.style = style
         self.config = config
         self.parentContainer = parentContainer
-        self._isContainer = isContainer
+        self.isDefaultContainer = isDefaultContainer
+        self.isExplicitContainer = isExplicitContainer or isDefaultContainer
         self.parent = None
         self._refName = None
         if style != None:

@@ -50,6 +50,15 @@ def h3(*children):
 def h4(*children):
     return ParagNode(h4, style={"fontSize": 16}, children=children)
 
+def bulletlist(*children):
+    print("------------- BULLET LIST-----------")
+    return ParagNode(bulletlist, style={}, children=children)
+
+def bulletitem(*children):
+    return ParagNode(bulletitem, style={"fontSize": 12, "enum": "- "}, parentContainer=bulletlist, isExplicitContainer=True, children=children)
+
+# TODO: listitem
+
 def chapter(*children):
     return h1(counter("Chapter {}: ", "Chapter {}", "Level1"), *children)
 
@@ -61,12 +70,6 @@ def code(*children):
 
 def math(*children):
     return ParagNode(code, style={}, children=children)
-
-# def deck():
-#     return ParagNode(deck)
-
-# def slide(tmpl = None, **kwargs):
-#    return ParagNode(slide, style=kwargs, config={"tmpl": tmpl}, parent=deck)
 
 def style(child = None, **styleInfo):
     return StyleNode(style, child=child, style=styleInfo)
@@ -187,13 +190,16 @@ def roboto(child = None):
 
 # -----------------------------------------
 
+def mybox(*children):
+    return p(style(flow = "mybox"), *children)
+
 from pymates.sizes import mm, A4, landscape
 
 def slidedeck():
     return pagesize(landscape(A4))
 
 def slide(*children):
-    return ParagNode(slide, style={}, parentContainer=document, isContainer=True, children=(
+    return ParagNode(slide, style={}, parentContainer=document, isDefaultContainer=True, children=(
         flow(), pageLayout(), margin(20*mm, 50*mm, 20*mm, 20*mm),
         pageBox(flow="title", rect=(20*mm, 15*mm, 250*mm, 30*mm)),
         pageBox(flow="footer", rect=(20*mm, 190*mm, 250*mm, 10*mm)),
@@ -206,7 +212,7 @@ def title(*children):
     ))
 
 def footer(localPage = False, *children):
-    return ParagNode(footer, style={"fontSize": 12}, parentContainer=slide, children=(
+    return ParagNode(footer, style={"fontSize": 12}, children=(
         flow("footer", "flow" if localPage else "document"), *children
     ))
 

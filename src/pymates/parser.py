@@ -1,5 +1,5 @@
 import inspect
-from pymates.markdown import document, inlineCode, inlineMath, bold, italic, math, code, h1, h2, h3, h4, p, span
+from pymates.markdown import document, inlineCode, inlineMath, bold, italic, math, code, h1, h2, h3, h4, p, span, bulletitem
 from pymates.scanner import Token, Scanner
 from pymates.dom import FunctionNode, SpanNode, FunctionNodeMode
 
@@ -47,11 +47,11 @@ class Parser:
                 print(f"STR: '{txt}'")
                 section.append(txt)
             elif tok == Token.OrderedListSection:
-                newSection = self.lookupBuiltin("ol", ol)()
+                newSection = self.lookupBuiltin("listitem", listitem)()
                 newSection.indent = self.scanner.indent
                 section.append(newSection)
             elif tok == Token.UnorderedListSection:
-                newSection = self.lookupBuiltin("ul", ul)()
+                newSection = self.lookupBuiltin("bulletitem", bulletitem)()
                 newSection.indent = self.scanner.indent
                 section.append(newSection)            
             elif tok == Token.Section:
@@ -67,6 +67,7 @@ class Parser:
                     newSection = self.lookupBuiltin("h4", h2)()
                 else:
                     raise BaseException("Oooops")
+                print(self.scanner.indent)
                 newSection.indent = self.scanner.indent
                 section.append(newSection)
             elif tok == Token.BracketOpen:

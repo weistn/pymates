@@ -88,10 +88,22 @@ def genParag(node, doc, cursor):
     if "color" in node.style:
         s = node.style["color"]
         textColor = color(s[0], s[1], s[2])
-    cursor.startBlock(font=textFont, textColor=textColor, align=align)
+    # TODO: Get the next two values from style
+    leftIndent = cursor.leftIndent
+    hangingLeftIndent = 0
+    if "enum" in node.style:
+        enumIndent = textFont.fontmetrics.advance(node.style["enum"])
+        hangingLeftIndent = enumIndent
+        savedLeftIndent = cursor.leftIndent
+        cursor.leftIndent += enumIndent
+    cursor.startBlock(font=textFont, textColor=textColor, align=align, leftIndent=leftIndent, hangingLeftIndent=hangingLeftIndent)
+    if "enum" in node.style:
+        cursor.text(node.style["enum"])
     if node.children != None:
         for n in node.children:
             cursor = genNode(n, doc, cursor)
+    if "enum" in node.style:
+        cursor.leftIndent = savedLeftIndent
     if returnCursor != None:
         return returnCursor
     return cursor

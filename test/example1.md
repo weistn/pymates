@@ -14,6 +14,11 @@ newline problem.
 Now something in \red{RED}, with \underline{underline} and with \strike{strike out}.
 Futhermore, we can write \tt{typewriter}.
 
+- First, do this. Take note that this block does now feature a hanging indent, such that it looks left aligned.
+ - A new enum
+ - At an indented level
+- Second, do that
+
 \p\bold A new paragraph with a command in front.
 \h1\color(0, 0, 255) All blue
 \h1\red All red

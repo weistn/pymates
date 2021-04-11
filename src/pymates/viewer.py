@@ -33,7 +33,8 @@ if __name__ == '__main__':
     ev = Evaluator()
     for step in (None, "counters", "references"):
         ev.evaluate(parser.doc, parser.nspace, step)
-        treeify(parser.doc)
+        if step == None:
+            treeify(parser.doc)
     
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Preview")

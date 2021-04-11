@@ -131,12 +131,14 @@ class TextFlow:
                 self.blocks[self._blockIndex].startLayout()
 
 class TextBlock:
-    def __init__(self, flow, align = Alignment.Left, font = None, textColor = None, margin = None, padding = None):
+    def __init__(self, flow, align = Alignment.Left, font = None, textColor = None, margin = None, padding = None, leftIndent = 0, hangingLeftIndent = 0):
         self.flow = flow
         self.flow.blocks.append(self)
         self.align = align
         self.margin = Margin(0, 0, 0, 0) if margin == None else margin
         self.padding = Padding(0, 0, 0, 0) if padding == None else padding
+        self.leftIndent = leftIndent
+        self.hangingLeftIndent = hangingLeftIndent
         if font == None:
             self.font = flow.doc.font
         else:
@@ -165,6 +167,11 @@ class TextBlock:
         if self.objectIndex == len(self.objects):
             return None
         t = TextLine(self.objectIndex)
+        t.x += self.leftIndent
+        width -= self.margin.left + self.padding.left + self.leftIndent + self.padding.right + self.margin.right
+        if self.objectIndex != 0:
+            width -= self.hangingLeftIndent
+            t.x += self.hangingLeftIndent
         t.save()
         while True:
             # End of block?
@@ -336,9 +343,10 @@ class TextCursor:
         self.textColor = None
         self._endsWithSpace = False
         self.formatStack = []
+        self.leftIndent = 0
 
-    def startBlock(self, align = Alignment.Left, font = None, textColor = None, padding=None, margin=None):
-        self.block = TextBlock(self.flow, align, font, textColor, padding, margin)
+    def startBlock(self, align = Alignment.Left, font = None, textColor = None, margin=None, padding=None, leftIndent=0, hangingLeftIndent=0):
+        self.block = TextBlock(self.flow, align, font, textColor, margin, padding, leftIndent, hangingLeftIndent)
         self.font = None
         self.textColor = None
         if len(self.formatStack) != 0:
@@ -346,7 +354,7 @@ class TextCursor:
         self._endsWithSpace = False
         return self.block
 
-    def blockFormat(self, align = None, font = None, textColor = None, padding=None, margin=None):
+    def blockFormat(self, align = None, font = None, textColor = None, margin=None, padding=None, leftIndent=None, hangingLeftIndent=None):
         if align != None:
             self.block.align = align
         if textColor != None:
@@ -357,6 +365,10 @@ class TextCursor:
             self.block.padding = padding
         if margin != None:
             self.block.margin = margin
+        if leftIndent != None:
+            self.block.leftIndent = leftIndent
+        if hangingLeftIndent != None:
+            self.block.hangingLeftIndent
 
     def text(self, str):
         if self.block == None:
@@ -522,8 +534,8 @@ class PageBox:
                     done = True
                     break
                 print("L")
-                line.x = 0
-                line.y = self.heightPoints
+                # line.x = 0
+                line.y += self.heightPoints
                 self.heightPoints += h
                 self.lines.append(line)
                 # leading = b.leading()
