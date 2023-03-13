@@ -15,13 +15,13 @@ Second, activate the virtual environent.
 On Windows, run:
 
 ```
-tutorial-env\Scripts\activate.bat
+.venv\Scripts\activate.bat
 ```
 
 On Unix or MacOS, run:
 
 ```
-source tutorial-env/bin/activate
+source .venv/bin/activate
 ```
 
 Launch the viewer with
